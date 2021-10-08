@@ -1,0 +1,41 @@
+site_name: Code References - Watcherstream
+site_url: https://4d-game.github.io/Streamer
+
+nav:
+  - Home: https://4d-game.github.io
+  - Coding Style: https://4d-game.github.io/coding-style/cpp/
+  - Code References:
+      Streamer: https://4d-game.github.io/Watcherstream/
+      Controller: https://4d-game.github.io/Controller/
+      Watcherstream:
+        - Setup: index.md
+
+repo_url: https://github.com/4D-Game/Streamer
+
+theme:
+  name: material
+  language: en
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  features:
+    - navigation.tabs
+    - navigation.top
+  palette:
+    - scheme: default
+      primary: light blue
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: light blue
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences

@@ -1,9 +1,0 @@
-autopep8
-flake8
-pep8==1.7.1
-pycodestyle
-pylint
-mkdocs<1.2
-mkdocs-material
-mkdocstrings
-pytkdocs[numpy-style]

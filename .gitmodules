@@ -1,0 +1,3 @@
+[submodule "lib/surrortg-sdk"]
+	path = lib/surrortg-sdk
+	url = https://github.com/SurrogateInc/surrortg-sdk.git

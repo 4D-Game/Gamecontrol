@@ -21,7 +21,7 @@ RUN python3 -m pip install requests
 COPY srtg.toml /etc/srtg/srtg.toml
 RUN touch /src/app/setup/log.txt
 COPY scripts/multiprocess /src/app/setup/run
-COPY scripts/srtg-watcherstream /usr/bin/srtg-watcherstream
+COPY src/srtg-watcherstream /usr/bin/srtg-watcherstream
 #COPY scripts/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /tmp/srtg_hls

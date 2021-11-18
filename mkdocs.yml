@@ -21,16 +21,16 @@ theme:
     - navigation.tabs
     - navigation.top
   palette:
-    - scheme: default
-      primary: light blue
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
+    # - scheme: default
+    #   primary: light blue
+    #   toggle:
+    #     icon: material/toggle-switch-off-outline
+    #     name: Switch to dark mode
     - scheme: slate
       primary: light blue
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
+      # toggle:
+      #   icon: material/toggle-switch
+      #   name: Switch to light mode
 
 plugins:
   - search

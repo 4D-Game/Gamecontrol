@@ -1,4 +1,4 @@
-# Watcherstream Setup
+# Gamecontrol Setup
 
 ## Development
 

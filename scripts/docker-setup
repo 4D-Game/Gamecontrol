@@ -1,4 +1,0 @@
-#!/bin/bash
-
-docker build -t 4d-game/watcherstream .
-docker run -v ${PWD}/srtg_hls:/tmp/srtg_hls --name watcherstream 4d-game/watcherstream

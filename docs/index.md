@@ -8,22 +8,12 @@ To write code and generate the documentation you need to install the packages li
 pip install -r requirements.txt
 ```
 
-To use the surrortg-sdk initialize and update the submodule with:
+### PYTHONPATH
+To get nicer imports and automatic documentation add the `src` folder to your `PYTHONPATH`
 
 ```bash
-git submodule init
-git submodule update
+export PYTHONPATH="$(pwd)/src:$(pwd)/lib"
 ```
-
-!!! Note
-    To import modules from the **surrortg-sdk** you have to extend the `PYTHONPATH`:
-    ```python
-    import sys, os
-    sys.path.insert(1, os.path.join(os.path.dirname(
-      os.path.abspath(__file__)), os.pardir, "lib", "surrortg-sdk"))
-
-    from surrortg import <...>
-    ```
 
 ### Documentation
 
@@ -36,21 +26,3 @@ The Documentation is generated with the help of [mkdocstrings](https://mkdocstri
 
 ::: library.module.function
 ```
-
-## Run
-
-To run the watcherstream you have to create a Docker image from the `Dockerfile` and run it in a container by running the `docker-setup` script.
-
-!!! info
-    To use Docker on Windows you need to install the [wsl](https://fireship.io/lessons/windows-10-for-web-dev/)
-
-Now set up OBS like explained in the [Surrogate docs](https://docs.surrogate.tv/watcherstream.html#obs-mode) but change the **recording path** to the *srtg_hls* Folder in this repository.
-
-Next generate the configuration for the watcherstream (`srtg.toml`) by running `scripts/generate-config`. The script takes the **Device Id** and **Game Token** as argument.
-
-```bash
-python3 scripts/generate-config <device_id> <token>
-```
-
-!!! danger
-    Never upload the game token

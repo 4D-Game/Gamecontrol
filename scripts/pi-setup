@@ -1,0 +1,35 @@
+#!/bin/bash
+
+SCRIPT_PATH=$(dirname `which $0`)
+
+echo "Updatet packages ---------------------------------------------------------"
+sudo apt update
+sudo apt upgrade -y
+echo ""
+
+echo "Setup Shell environment --------------------------------------------------"
+touch ~/.bash_profile
+echo "export PYTHONPATH=$SCRIPT_PATH/../src" >> ~/.bash_profile
+echo "export PATH=/home/$USER/.local/bin:$PATH"
+source ~/.bash_profile
+echo ""
+
+echo "Install Python and Pip ---------------------------------------------------"
+sudo apt install python3 python3-pip -y
+echo ""
+
+echo "Install Docker -----------------------------------------------------------"
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER # Add active user to docker group
+rm get-docker.sh
+echo ""
+
+echo "Install Docker-Compose ---------------------------------------------------"
+sudo apt-get install libffi-dev libssl-dev
+sudo apt install python3-dev
+sudo pip3 install docker-compose
+echo ""
+
+echo "Run Docker Container -----------------------------------------------------"
+sudo docker-compose up -d

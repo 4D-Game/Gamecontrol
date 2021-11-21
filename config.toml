@@ -1,0 +1,4 @@
+seats=[1, 2]
+
+[MQTT]
+broker_ip="ece-gamectl.fritz.box"

@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    restart: unless-stopped
+    user: '1883'
+    ports:
+      - '1883:1883'
+    volumes:
+      - ./docker/mosquitto/data:/mosquitto/data
+      - ./docker/mosquitto/log:/mosquitto/log
+      - ./docker/mosquitto/pwfile:/mosquitto/pwfile
+      - ./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./docker/mosquitto/filter.acl:/mosquitto/config/filter.acl

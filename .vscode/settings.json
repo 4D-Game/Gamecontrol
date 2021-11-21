@@ -1,9 +1,22 @@
 {
-  "python.linting.pycodestyleEnabled": true,
+  "python.linting.pycodestyleEnabled": false,
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": false,
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
   },
   "python.linting.pylintEnabled": true,
-  "python.linting.pylintUseMinimalCheckers": false,
-  "python.formatting.provider": "autopep8"
+  "python.linting.pylintArgs": [
+    "--module-naming-style=snake_case",
+    "--const-naming-style=UPPER_CASE",
+    "--class-naming-style=PascalCase",
+    "--function-naming-style=snake_case",
+    "--method-naming-style=snake_case",
+    "--attr-naming-style=snake_case",
+    "--variable-naming-style=snake_case",
+    "--max-line-length=180"
+  ],
+  "python.formatting.provider": "autopep8",
+  "python.formatting.autopep8Args": ["--max-line-length=180", "--ignore=E402"],
+  "python.analysis.extraPaths": ["./lib", "src"]
 }

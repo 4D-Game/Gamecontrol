@@ -5,6 +5,5 @@
   },
   "python.linting.pylintEnabled": true,
   "python.linting.pylintUseMinimalCheckers": false,
-  "python.formatting.provider": "autopep8",
-  "python.analysis.extraPaths": ["./lib/surrortg-sdk"]
+  "python.formatting.provider": "autopep8"
 }

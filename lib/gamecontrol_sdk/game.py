@@ -4,6 +4,8 @@ import logging
 from typing import Any, Coroutine, MutableMapping
 import toml
 
+from asyncio_mqtt.error import MqttError
+
 from gamecontrol_sdk.game_io import GameIO, GameState
 from gamecontrol_sdk.players import Players
 
@@ -122,16 +124,17 @@ class Game:
             Executed, when a player scores one or more points
         """
 
-    async def _game_io_sub(self, mqtt_conf: dict):
+    async def _game_io_sub(self):
         """
             Subscribe to changes of the game state
 
             Arguments:
                 mqtt_conf: GameIO configuration
         """
-        self._game_io = GameIO(mqtt_conf)
 
         async for topic, data in self._game_io.subscribe():
+            logging.debug("Got Message from: %s with %s", topic, data)
+
             if (topic == "status/ready"):
                 self._players.set_ready(data['seat'], data['ready'])
                 await self._ready()
@@ -165,26 +168,34 @@ class Game:
         """
             Asynchronous `run` function
         """
+        try:
+            self.config = toml.load(conf_path)
+            logging.debug(self.config)
 
-        self.config = toml.load(conf_path)
-        logging.debug(self.config)
+            self._players = Players(self.config['seats'])
 
-        self._players = Players(self.config['seats'])
+            self._game_io = GameIO(self.config['MQTT'])
+            await self._game_io.connect()
 
-        main_loop = asyncio.gather(
-            self._game_io_sub(self.config['MQTT'])
-        )
+            main_loop = asyncio.gather(
+                self._game_io_sub()
+            )
 
-        await self.on_init()
-        self._is_running = True
+            await self.on_init()
+            self._is_running = True
 
-        # try:
-        await main_loop
-        await self.on_exit()
-        # except Exception as err:
-        #    await self.on_exit(err)
+            # try:
+            await main_loop
+            await self.on_exit()
+            # except Exception as err:
+            #    await self.on_exit(err)
+        except MqttError:
+            logging.error("Couldn't connect to MQTT Client")
+            logging.error("MQTT Config: %s", self.config['MQTT'])
+        except FileNotFoundError:
+            logging.error("No config found at: %s", conf_path)
 
-    def run(self, conf_path: str = '/home/pi/Gamecontrol/config.toml', log_level: LogLevel = 0):
+    def run(self, conf_path: str = '/home/pi/Gamecontrol/config.toml', log_level: LogLevel = LogLevel.NOTSET):
         """
             Start the game engine
 
@@ -193,6 +204,6 @@ class Game:
                 log_level: logging level
         """
 
-        logging.getLogger().setLevel(log_level)
+        logging.getLogger().setLevel(log_level.value)
 
         asyncio.run(self._run(conf_path))

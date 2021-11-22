@@ -39,12 +39,16 @@ class GameIO:
         self.client = Client(self._ip, self._port,
                              username=self._uname, password=self._passwd)
 
+    async def connect(self):
+        """
+            Connect to MQTT client
+        """
+        await self.client.connect()
+
     async def subscribe(self):
         """
             Subscribe to the gamestatus published by the gamecontrol
         """
-
-        await self.client.connect()
 
         topics = [("status/ready", 0), ("score", 0)]
 
@@ -62,6 +66,7 @@ class GameIO:
         """
 
         try:
+            logging.debug("Publish to: %s with %s", topic, payload)
             await self.client.publish(topic, json.dumps(payload))
         except TypeError:
             logging.error("MQTT Payload is not JSON serializable")

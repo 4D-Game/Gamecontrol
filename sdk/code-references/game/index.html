@@ -7,9 +7,9 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <link href="https://4d-game.github.io/Gamecontrol/sdk/code-references/game/" rel="canonical"/>
 <link href="../../../assets/logo.png" rel="icon"/>
-<meta content="mkdocs-1.2.3, mkdocs-material-7.3.4" name="generator"/>
+<meta content="mkdocs-1.2.3, mkdocs-material-7.3.6" name="generator"/>
 <title>Game - Code References - Gamecontrol</title>
-<link href="../../../assets/stylesheets/main.db9e7362.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/main.a57b2b03.min.css" rel="stylesheet"/>
 <link href="../../../assets/stylesheets/palette.3f5d1f46.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
@@ -428,6 +428,9 @@
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.on_end">
 <code class="highlight language-python"><span class="n">on_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-async"><code>async</code></small>
+</span>
 </h2>
 <div class="doc doc-contents">
 <p>Executed, when the game ends</p>
@@ -448,6 +451,9 @@
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.on_exit">
 <code class="highlight language-python"><span class="n">on_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-async"><code>async</code></small>
+</span>
 </h2>
 <div class="doc doc-contents">
 <p>Executed, when the game loop is exited</p>
@@ -491,6 +497,9 @@
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.on_init">
 <code class="highlight language-python"><span class="n">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-async"><code>async</code></small>
+</span>
 </h2>
 <div class="doc doc-contents">
 <p>Executed, when the game is startet with <code>Game.run()</code></p>
@@ -509,6 +518,9 @@
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.on_pregame">
 <code class="highlight language-python"><span class="n">on_pregame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-async"><code>async</code></small>
+</span>
 </h2>
 <div class="doc doc-contents">
 <p>Executed, before a new game starts</p>
@@ -527,6 +539,9 @@
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.on_score">
 <code class="highlight language-python"><span class="n">on_score</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-async"><code>async</code></small>
+</span>
 </h2>
 <div class="doc doc-contents">
 <p>Executed, when a player scores one or more points</p>
@@ -543,6 +558,9 @@
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.on_start">
 <code class="highlight language-python"><span class="n">on_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-async"><code>async</code></small>
+</span>
 </h2>
 <div class="doc doc-contents">
 <p>Executed, when a new game starts</p>
@@ -559,7 +577,7 @@
 </div>
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.run">
-<code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_path</span><span class="o">=</span><span class="s1">'/home/pi/Gamecontrol/config.toml'</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_path</span><span class="o">=</span><span class="s1">'/home/pi/Gamecontrol/config.toml'</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=&lt;</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">:</span> <span class="mi">0</span><span class="o">&gt;</span><span class="p">)</span></code>
 </h2>
 <div class="doc doc-contents">
 <p>Start the game engine</p>
@@ -584,13 +602,13 @@
 <td><code>log_level</code></td>
 <td><code>LogLevel</code></td>
 <td><p>logging level</p></td>
-<td><code>0</code></td>
+<td><code>&lt;LogLevel.NOTSET: 0&gt;</code></td>
 </tr>
 </tbody>
 </table>
 <details class="quote">
 <summary>Source code in <code>gamecontrol_sdk/game.py</code></summary>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'/home/pi/Gamecontrol/config.toml'</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="n">LogLevel</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'/home/pi/Gamecontrol/config.toml'</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="n">LogLevel</span> <span class="o">=</span> <span class="n">LogLevel</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">        Start the game engine</span>
 
@@ -599,7 +617,7 @@
 <span class="sd">            log_level: logging level</span>
 <span class="sd">    """</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">conf_path</span><span class="p">))</span>
 </code></pre></div>
@@ -609,6 +627,9 @@
 <div class="doc doc-object doc-method">
 <h2 class="doc doc-heading" id="gamecontrol_sdk.game.Game.set_game_state">
 <code class="highlight language-python"><span class="n">set_game_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span></code>
+<span class="doc doc-properties">
+<small class="doc doc-property doc-property-async"><code>async</code></small>
+</span>
 </h2>
 <div class="doc doc-contents">
 <p>Set <code>game_state</code> and execute the coresponding function</p>
@@ -716,7 +737,7 @@
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.8397ff9e.min.js", "version": null}</script>
-<script src="../../../assets/javascripts/bundle.1e84347e.min.js"></script>
+<script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../assets/javascripts/workers/search.fcfe8b6d.min.js", "version": null}</script>
+<script src="../../../assets/javascripts/bundle.b1047164.min.js"></script>
 </body>
 </html>

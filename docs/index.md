@@ -26,3 +26,15 @@ The Documentation is generated with the help of [mkdocstrings](https://mkdocstri
 
 ::: library.module.function
 ```
+
+### I2C
+Change the I2C Frequency/Speed on Raspberry Pi3
+
+Open `/boot/config.txt` file with `sudo nano /boot/config.txt` and add in line `dtparam=i2c_arm=on` with a comma the new baudrate:
+
+```bash
+dtparam=i2c_arm=on,i2c_arm_baudrate=1000000
+```
+`reboot` the Raspberry Pi
+
+A simple shellscript can be included for verification. See link for instructions: (https://gist.github.com/ribasco/c22ab6b791e681800df47dd0a46c7c3a)

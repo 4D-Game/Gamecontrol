@@ -4,17 +4,20 @@ site_url: https://4d-game.github.io/Gamecontrol
 nav:
   - Home: https://4d-game.github.io
   - Coding Style: https://4d-game.github.io/coding-style/cpp/
-  - Code:
-      Controller: https://4d-game.github.io/Controller/
-      Gamecontrol:
-        - Setup: index.md
-        - Gamecontrol SDK:
-            - Structure: sdk/index.md
-            - Config File: sdk/config-file.md
-            - Code References:
-                - Game: sdk/code-references/game.md
-                - GameIO: sdk/code-references/game_io.md
-                - Players: sdk/code-references/players.md
+  - Game Code:
+      - Controller: https://4d-game.github.io/Controller/
+      - Gamecontrol:
+          - Setup: index.md
+  - SDK:
+      - Overview: https://4d-game.github.io/sdk
+      - Game SDK: https://4d-game.github.io/Controller/sdk
+      - Gamecontrol SDK:
+          - Structure: sdk/index.md
+          - Config File: sdk/config-file.md
+          - Code References:
+              - Game: sdk/code-references/game.md
+              - GameIO: sdk/code-references/game_io.md
+              - Players: sdk/code-references/players.md
 
 repo_url: https://github.com/4D-Game/Gamecontrol
 repo_name: 4D-Game/Gamecontrol

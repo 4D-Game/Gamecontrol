@@ -37,4 +37,4 @@ dtparam=i2c_arm=on,i2c_arm_baudrate=1000000
 ```
 `reboot` the Raspberry Pi
 
-A simple shellscript can be included for verification. See link for instructions: (https://gist.github.com/ribasco/c22ab6b791e681800df47dd0a46c7c3a)
+A simple shellscript can be included for verification. See link for more information: (https://gist.github.com/ribasco/c22ab6b791e681800df47dd0a46c7c3a)

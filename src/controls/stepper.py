@@ -15,6 +15,7 @@ import atexit
 import logging
 import threading
 import mqtt
+import asyncio
 
 class Stepper(StepperHAL): 
     """

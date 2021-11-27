@@ -10,6 +10,7 @@ import time
 import atexit 
 import logging
 import threading
+import asyncio
 #import mqtt
 
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
@@ -131,5 +132,5 @@ class EncoderHAL():
     pass  
 
 if __name__ == "__main__":
-    Stepper1= StepperHAL("myStepper1",int:1,int:10) #port_name, port_number, rpm_init 
+    Stepper1= StepperHAL("myStepper1",1,10) #port_name, port_number, rpm_init 
     myStepper1.set_position(15)             #target position

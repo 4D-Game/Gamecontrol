@@ -1,4 +1,4 @@
-seats=[1]
+seats=[1,2]
 
 [MQTT]
-broker_ip="10.36.40.109"
+broker_ip="10.36.40.103"

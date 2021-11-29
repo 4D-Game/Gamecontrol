@@ -63,19 +63,15 @@ class Game:
         """
 
         self._game_state = state
-        state_func: Coroutine
 
         if self._game_state == GameState.START:
-            state_func = self.on_pregame()
+            asyncio.create_task(self.on_pregame())
         if self._game_state == GameState.RUN:
-            state_func = self.on_start()
+            asyncio.create_task(self.on_start())
         if self._game_state == GameState.END:
-            state_func = self.on_end()
+            asyncio.create_task(self.on_end())
 
-        await asyncio.gather(
-            state_func,
-            self._game_io.set_game_state(self._game_state)
-        )
+        asyncio.create_task(self._game_io.set_game_state(self._game_state))
 
     async def on_init(self):
         """
@@ -124,6 +120,8 @@ class Game:
             Executed, when a player scores one or more points
         """
 
+        logging.info("ON SCORE")
+
     async def _game_io_sub(self):
         """
             Subscribe to changes of the game state
@@ -138,8 +136,8 @@ class Game:
             if (topic == "status/ready"):
                 self._players.set_ready(data['seat'], data['ready'])
                 await self._ready()
-            elif (topic == "score"):
-                self._players.set_score(data['seat'], data['ready'])
+            elif (topic == "score") and self._game_state is GameState.RUN:
+                self._players.set_score(data['seat'], data['score'])
                 await self.on_score()
 
     async def _ready(self):

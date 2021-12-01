@@ -27,7 +27,8 @@ class Stepper(StepperHAL):
         pass
     def get_points(): #???
         pass     
-    def shutdown():
+    def close():
+        #aufruf der close hal
         pass 
 
        

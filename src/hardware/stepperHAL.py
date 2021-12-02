@@ -18,7 +18,7 @@ class StepperHAL():
     """
         Hardware interface of tower
         Attributes:
-            port_name: for port M1_M2 is equal to port_number 1
+            stepper_name: for port M1_M2 is equal to port_number 1
                        for port M3_M4 is equal to port_number 2
             port_number: only 1 or 2!
             rpm: set speed () - specified to between 0 - 30, increase possible
@@ -38,35 +38,36 @@ class StepperHAL():
         """
         self._station=Adafruit_MotorHAT(addr)    #composition attribute
         atexit.register(self.turn_off_motor) 
-        self.steps=1                             #default step size
-
-        self.name=stepper_name        #gets myStepper1 and myStepper2
-        self.port_number=port_number  #only 1 or 2!
+        self.steps=1                             #default step size    
+        self.name=stepper_name                   #gets myStepper1 and myStepper2
+        self.port_number=port_number             #only 1 or 2!
         self.motor=self._station.getStepper(200, self.port_number)   # 200 steps/rev, motor port #1 oder #2
-        self.motor.setSpeed(rpm)      #kick off when tests show it´s necessary
+        self.motor.setSpeed(rpm) 
         self.stepper_thread=threading.Thread()   #init empty threads
-        self.count=0                  #only for tests!!!!!!!
+
+        self.count=0                             #only for tests!!!!!!!
 
     async def get_position(self):
         """
-            current stepper position - for point system or game start
+            returns current stepper position - for point system or game start       
         """
         #todo Encoder()
-        position = 50                 #only for current test!!!!!!!!!!!!!!!!!!!!!!!!!
+        position = 50                  #only for current test!!!!!!!!!!!!!!!!!!!!!!!!!
         print(f"current position is {position}")
         return int(position)
 
     async def set_position(self, pos_goal, rpm:int=20 ) -> int:
         """
             set stepper position for game start
-                Arguments: position_zero
+            Arguments:  pos_goal
+                        rpm
         """ 
         self.motor.setSpeed(rpm)         #rpm at setup default=10
         pos_current=await(self.get_position())
         
         logging.info(f"Port {self.name} current position {pos_current}")
         
-        steps=pos_current-pos_goal     #calc step size    
+        steps=pos_current-pos_goal      #calc step size    
         if steps>0:
             self.motor.step(steps, Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE)
             print(f"steps to go {steps}")
@@ -80,10 +81,20 @@ class StepperHAL():
         return pos_current    
 
     def _stepper_worker(self, steps, direction, rpm):
+        """
+            Thread worker
+            Attributes: steps
+                        direction
+                        rpm
+        """
         self.motor.setSpeed(rpm)
         self.motor.step(steps, direction, Adafruit_MotorHAT.DOUBLE)
 
     async def rotate(self, direction: Adafruit_MotorHAT, rpm:int, step_size:int):    #Threads #step_size default=100 #todo:variable  
+        """
+        thread control
+
+        """
         if not self.stepper_thread.isAlive(): 
             self.stepper_thread=threading.Thread(target=self._stepper_worker, args=(step_size,direction, rpm)) 
             self.count+=1
@@ -98,14 +109,12 @@ class StepperHAL():
             self._station.getMotor(1).run(Adafruit_MotorHAT.BRAKE)
             self._station.getMotor(2).run(Adafruit_MotorHAT.BRAKE)
             logging.info(f"{self.name} stop")
-            print(f"{self.name} stop")
         elif self.port_number == 2:
             self._station.getMotor(3).run(Adafruit_MotorHAT.BRAKE)
             self._station.getMotor(4).run(Adafruit_MotorHAT.BRAKE)
-            logging.info(f"Port {self.port_number} stop") 
-            print(f"{self.name} stop")
+            logging.info(f"Port {self.name} stop") 
         else:
-            logging.info(f"Port {self.port_number} don´t stop")          
+            logging.info(f"Motor {self.name} don´t stop")          
         
     def turn_off_motor(self):
         """
@@ -115,17 +124,28 @@ class StepperHAL():
         self._station.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
         self._station.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
         self._station.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
-        logging.debug(f"Both ports release")
+        logging.info(f"Check on hardware: both ports release")
         
     async def close(self):
-        #should only be controlled via the GameSDK
-        #mqtt.client.disconnect()  #close tower mqtt connection 
-        pass
+        """
+           call in superordinate structure
+        """
+        #self.stepper_thread.stop()   #dont work             
+        logging.info(f"stepperHAL close function: {self.name} close")
 
 
 class EncoderHAL():
-    
-    pass  
+    def __init__(self, name): 
+        self.name=name
+        self.motor_steps_per_rev=200
+        self.motor_step_angle=1,8
+
+    async def imp_count(self):
+
+        pass     
+
+
+     
 
 
 if __name__ == "__main__":

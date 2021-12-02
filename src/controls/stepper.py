@@ -17,19 +17,36 @@ import threading
 import mqtt
 import asyncio
 
-class Stepper(StepperHAL): 
+class Stepper(StepperHAL): #Control
     """
         Gamecontroll Stepper
     """
-    def __init__(self):
-        super(). __init__(self, port_name, port_number:int, rpm:int, addr=0x60)    
-    def set_speed(self): 
+    def __init__(self,stepper_name, port_number, rpm:int):
+        super(). __init__(self, stepper_name, port_number, rpm) 
+
+    async def set_speed(self):
         pass
-    def get_points(): #???
-        pass     
-    def close():
-        #aufruf der close hal
-        pass 
+
+    async def set_start_position(self):
+        """
+            set start position after each game round 
+        """
+        await asyncio.run(self.set_position())
+
+    async def get_score(self):
+        """
+            Control depending on the score 
+            Attribute: 
+        """
+
+        # await self.motor_stop() # todo: change in on_end at game_sdk
+        pass
+             
+    async def on_exit(self):
+        """
+            threading stop, motor_release via atexit register 
+        """
+        await self.close()    #todo: check hal.close
 
        
 

@@ -1,4 +1,4 @@
-site_name: Code References - Gamecontrol
+site_name: Crazy Comet - Gamecontrol
 site_url: https://4d-game.github.io/Gamecontrol
 
 nav:
@@ -8,16 +8,8 @@ nav:
       - Controller: https://4d-game.github.io/Controller/
       - Gamecontrol:
           - Setup: index.md
-  - SDK:
-      - Overview: https://4d-game.github.io/sdk
-      - Game SDK: https://4d-game.github.io/Controller/sdk
-      - Gamecontrol SDK:
-          - Structure: sdk/index.md
-          - Config File: sdk/config-file.md
-          - Code References:
-              - Game: sdk/code-references/game.md
-              - GameIO: sdk/code-references/game_io.md
-              - Players: sdk/code-references/players.md
+  - SDK: https://4d-game.github.io/SDK/
+  - Hardware: https://4d-game.github.io/Hardware
 
 repo_url: https://github.com/4D-Game/Gamecontrol
 repo_name: 4D-Game/Gamecontrol

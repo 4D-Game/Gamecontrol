@@ -9,7 +9,7 @@ echo ""
 
 echo "Setup Shell environment --------------------------------------------------"
 touch ~/.bash_profile
-echo "export PYTHONPATH=$SCRIPT_PATH/../src" >> ~/.bash_profile
+echo "export PYTHONPATH=$SCRIPT_PATH/../src:$SCRIPT_PATH/../lib/sdk" >> ~/.bash_profile
 echo "export PATH=/home/$USER/.local/bin:$PATH"
 source ~/.bash_profile
 echo ""

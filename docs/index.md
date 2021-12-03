@@ -26,7 +26,7 @@ git submodule update
 To get nicer imports and automatic documentation add the `src` folder to your `PYTHONPATH`
 
 ```bash
-export PYTHONPATH="$(pwd)/src:$(pwd)/lib"
+export PYTHONPATH="$(pwd)/src:$(pwd)/lib/sdk"
 ```
 
 ### Documentation

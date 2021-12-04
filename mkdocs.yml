@@ -8,7 +8,7 @@ nav:
       - Controller: https://4d-game.github.io/Controller/
       - Gamecontrol:
           - Setup: index.md
-  - SDK: https://4d-game.github.io/SDK/
+  - SDK: https://4d-game.github.io/sdk/
   - Hardware: https://4d-game.github.io/Hardware
 
 repo_url: https://github.com/4D-Game/Gamecontrol

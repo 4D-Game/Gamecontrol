@@ -14,9 +14,14 @@ echo "export PATH=/home/$USER/.local/bin:$PATH"
 source ~/.bash_profile
 echo ""
 
+echo "Pull Submodules ----------------------------------------------------------"
+git submodule init
+git submodule update
+git submodule foreach --recursive 'git checkout master'
+echo ""
+
 echo "Install Python and Pip ---------------------------------------------------"
 sudo apt install python3 python3-pip -y
-
 echo ""
 
 echo "Install Docker -----------------------------------------------------------"
@@ -34,6 +39,15 @@ echo ""
 
 echo "Run Docker Container -----------------------------------------------------"
 sudo docker-compose up -d
+echo ""
+
+echo "Install Raspap -----------------------------------------------------------"
+curl -sL https://install.raspap.com | bash
+echo ""
 
 echo "Install requirements"
 pip3 install -Ur requirements.txt
+echo ""
+
+echo ""
+echo "Please reboot the raspberry pi"

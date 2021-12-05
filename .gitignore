@@ -3,3 +3,5 @@ site/
 
 docker/mosquitto/data/
 docker/mosquitto/log
+
+._**

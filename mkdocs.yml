@@ -1,16 +1,18 @@
-site_name: Code References - Watcherstream
-site_url: https://4d-game.github.io/Streamer
+site_name: Crazy Comet - Gamecontrol
+site_url: https://4d-game.github.io/Gamecontrol
 
 nav:
   - Home: https://4d-game.github.io
   - Coding Style: https://4d-game.github.io/coding-style/cpp/
-  - Code References:
-      Controller: https://4d-game.github.io/Controller/
-      Gamecontrol:
-        - Setup: index.md
+  - Game Code:
+      - Controller: https://4d-game.github.io/Controller/
+      - Gamecontrol:
+          - Setup: index.md
+  - SDK: https://4d-game.github.io/sdk/
+  - Hardware: https://4d-game.github.io/Hardware
 
-repo_url: https://github.com/4D-Game/Watcherstream
-repo_name: 4D-Game/Watcherstream
+repo_url: https://github.com/4D-Game/Gamecontrol
+repo_name: 4D-Game/Gamecontrol
 
 theme:
   name: material
@@ -34,10 +36,22 @@ theme:
 
 plugins:
   - search
-  - mkdocstrings
+  - mkdocstrings:
+      watch:
+        - lib/sdk
+        - src
+  - mermaid2:
+      arguments:
+        theme: 'dark'
 
 markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.highlight
-  - pymdownx.superfences
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid

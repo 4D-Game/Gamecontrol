@@ -8,13 +8,13 @@ Motorkit version
 """
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
-from ..hardware.stepperHAL import StepperHAL
+from ..hardware.stepperHAL import StepperHAL, Encoder
 
 import time
 import atexit 
 import logging
 import asyncio
-import board
+#import board
 
 class Stepper(StepperHAL): #Control
     """
@@ -23,11 +23,13 @@ class Stepper(StepperHAL): #Control
 
     def __init__(self, stepper_name, port_number):
         """
-        instantiation of the 2 steppers 
+            instantiation of the 2 steppers
+            instantiation case structure with a dictionary for game_run() conditions
         """
         #self.stepper1 = StepperHAL("myStepper1",1) #Conversion open, for test still different 
         #self.stepper2 = StepperHAL("myStepper2",2)
         super(). __init__(stepper_name, port_number)
+        self.case=Cases()
 
     async def set_start_position(self):
         """
@@ -58,26 +60,27 @@ class Stepper(StepperHAL): #Control
             mapping attributes to rotate()
         """    
         while True:
-            print("test I´m in game_run loop") #ok, ok
+            print("test I am in game_run loop") #ok, ok
             await self.rotate() #ok, ok 
-            
-            if self.name=='myStepper2': #not ok!!!! 
-                self.new_dir=STEPPER.FORWARD                  #No change of direction at Step2            
-                self.new_sleepy=0.04
-                await self.set_values(self.new_sleepy, self.new_dir)
-            
-            if self.name=='myStepper1':
-                start=time.time()
-                duration = await time.time()-start
-                print(f"{duration}")
-                if duration>2:
-                    self.new_sleepy=0.05
-                    if self.new_dir==STEPPER.FORWARD:
-                        self.new_dir=STEPPER.BACKWARD
-                    else:
-                        self.new_dir=STEPPER.FORWARD       
-                    await self.set_values(self.new_sleepy, self.new_dir)
-                    duration=0                
+            await self.case.func_dict.get(self.case.func_dict.myStepper1, self.case.func_dict.handler_default)()
+
+            # if self.name=='myStepper2': #not ok!!!! 
+            #     self.new_dir=STEPPER.FORWARD                  #No change of direction at Step2            
+            #     self.new_sleepy=0.04
+            #     await self.set_values(self.new_sleepy, self.new_dir)
+
+            # if self.name=='myStepper1':
+            #     start=time.time()
+            #     duration = await time.time()-start
+            #     print(f"{duration}")
+            #     if duration>2:
+            #         self.new_sleepy=0.05
+            #         if self.new_dir==STEPPER.FORWARD:
+            #             self.new_dir=STEPPER.BACKWARD
+            #         else:
+            #             self.new_dir=STEPPER.FORWARD       
+            #         await self.set_values(self.new_sleepy, self.new_dir)
+            #         duration=0                
 
         #logging.info(f"set_start_position Duration: {duration}")         
 
@@ -87,6 +90,29 @@ class Stepper(StepperHAL): #Control
         """
         await self.set_start_position() 
         self.close()    #todo: check hal.close
+
+
+class Cases():
+    def __init__(self):   
+        self.func_dict={
+            'myStepper1': self.handle_St1,
+            self.name=='myStepper2': self.handle_St2,
+            'handle_default':self.handle_default,       
+        }
+        self.enc=Encoder()  
+        self.angle=self.enc.angle_calc
+    async def handle_St1(self):
+        print(self.enc.angle_calc())
+
+    async def handle_St2(self):
+        pass
+    async def handle_default(self):
+        pass    
+
+
+
+
+
 
 Step1 = Stepper("myStepper1",1) #for tests 
 Step2 = Stepper("myStepper2",2)

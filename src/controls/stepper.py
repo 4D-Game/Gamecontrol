@@ -8,13 +8,15 @@ Motorkit version
 """
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
-from ..hardware.stepperHAL import StepperHAL, Encoder
+from hardware.stepperHAL import StepperHAL, Encoder
 
 import time
 import atexit 
 import logging
 import asyncio
-#import board
+import board
+
+logging.basicConfig(level=logging.INFO)
 
 class Stepper(StepperHAL): #Control
     """
@@ -91,7 +93,6 @@ class Stepper(StepperHAL): #Control
         await self.set_start_position() 
         self.close()    #todo: check hal.close
 
-
 class Cases():
     def __init__(self):   
         self.func_dict={
@@ -102,17 +103,12 @@ class Cases():
         self.enc=Encoder()  
         self.angle=self.enc.angle_calc
     async def handle_St1(self):
-        print(self.enc.angle_calc())
+        logging.info(self.enc.angle_calc())
 
     async def handle_St2(self):
         pass
     async def handle_default(self):
         pass    
-
-
-
-
-
 
 Step1 = Stepper("myStepper1",1) #for tests 
 Step2 = Stepper("myStepper2",2)
@@ -122,9 +118,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-    #testloop.close()   #check:                                            
-    #set_start_position()
-    #get_positon()
-    #set_position()
-    #motor_stop()

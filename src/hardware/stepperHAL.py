@@ -16,6 +16,8 @@ import logging
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
 
+logging.basicConfig(level=logging.INFO)
+
 class StepperHAL():
     #step_style=STEPPER.DOUBLE
     def __init__(self, stepper_name, port_number, stop_at_exit=True): 
@@ -47,7 +49,7 @@ class StepperHAL():
         #todo Encoder()
         angle_pos=await self.enc.angle_calc()
         position = 50                  #only for current test!!!!!!!!!!!!!!!!!!!!!!!!!
-        print(f"current position is {position} and angle {angle_pos}")
+        logging.info(f"current position is {position} and angle {angle_pos}")
         return int(position), int(angle_pos)
 
     async def set_position(self, pos_goal) -> int:
@@ -62,7 +64,7 @@ class StepperHAL():
 
         steps:int=pos_current-pos_goal      #calc step size    
         if steps>0:
-            print(f"steps to go {steps}")
+            logging.info(f"steps to go {steps}")
             for step in range(steps):
                 self.motor.onestep(direction=STEPPER.BACKWARD, style=self.step_style)
                 await asyncio.sleep(0.05)
@@ -73,7 +75,6 @@ class StepperHAL():
         
         pos_current = await self.get_position()
         logging.info(f"{self.name} check current position {pos_current} is equal to {pos_goal}?")
-        print(f"{self.name} check current position {pos_current} is equal to {pos_goal}")
         return pos_current  
 
     async def rotate(self):    
@@ -83,8 +84,7 @@ class StepperHAL():
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
             await asyncio.sleep(self.sleepy)
-            logging.info(f"rotate: {self.name} direction: {self.direction} with sleeptime {self.sleepy}")
-            #print(f"rotate {self.name} {self.direction} with {self.spleepy}")   
+            logging.info(f"rotate: {self.name} direction: {self.direction} with sleeptime {self.sleepy}") 
     
     async def motor_stop(self):
         """

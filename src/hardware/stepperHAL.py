@@ -84,7 +84,7 @@ class StepperHAL():
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
             await asyncio.sleep(self.sleepy)
-            logging.info(f"rotate: {self.name} direction: {self.direction} with sleeptime {self.sleepy}") 
+            #logging.info(f"rotate: {self.name} direction: {self.direction} with sleeptime {self.sleepy}") 
     
     async def motor_stop(self):
         """
@@ -125,8 +125,9 @@ class Encoder():
     """
     def __init__(self):
         self.motor_steps_per_rev=200 #not yet verified 
-        self.motor_step_angle=1,8
-        self.imp=0
+        self.motor_step_angle=1.8
+        self.imp=0                   #for simulation only
+        self.status=0                #for simulation only
 
     async def set_imp_zero(self):
         """
@@ -134,17 +135,28 @@ class Encoder():
             required at game_start
         """
         old_imp_val=self.imp
-        self.imp=0 #not yet practical 
+        self.imp=0         #not yet practical 
         logging.info(f"Encoder.set_imp_zero values: old {old_imp_val} new {self.imp}")
        
-    async def impulses(self):
-        if self.imp<5:
-            self.imp=self.imp+1
+    async def impulses(self): 
+        if self.status==0:
+                self.imp=self.imp+1
+                #logging.info(f"Encoder.impulses: value {self.imp}")
+                await asyncio.sleep(0.5)
+                if self.imp==5:
+                    self.status=1
+        elif self.status==1:           
+                self.imp=self.imp-1
+                #logging.info(f"Encoder.impulses: value {self.imp}")
+                await asyncio.sleep(0.5)
+                if self.imp==-5:
+                    self.status=0
         else:
-            self.imp=0     
-        await asyncio.sleep(0.5)
-        logging.info(f"Encoder.impulses: value {self.imp}")
-        return self.imp #for test only
+            logging.info(f"Error in impuls simulation")
+
+        #return self.imp #for test only
 
     async def angle_calc(self):
-        return await self.imp * self.motor_step_angle #calculation not verified  #input has to be +-angle!!!!     
+        await self.impulses()
+        total_angle= self.imp * self.motor_step_angle
+        return total_angle #calculation not verified  #input has to be +-angle!!!!     

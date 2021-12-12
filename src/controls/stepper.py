@@ -6,6 +6,7 @@ by: Sonja Lukas
 Tower control with 2 stepper
 Motorkit version
 """
+from asyncio.tasks import current_task
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
 from hardware.stepperHAL import StepperHAL, Encoder
@@ -16,22 +17,22 @@ import logging
 import asyncio
 import board
 
-logging.basicConfig(level=logging.INFO)
-
-class Stepper(StepperHAL): #Control
+class TowerControl(): #Control
     """
         Gamecontroll Stepper
     """
 
-    def __init__(self, stepper_name, port_number):
+    def __init__(self):
         """
             instantiation of the 2 steppers
             instantiation case structure with a dictionary for game_run() conditions
         """
-        #self.stepper1 = StepperHAL("myStepper1",1) #Conversion open, for test still different 
-        #self.stepper2 = StepperHAL("myStepper2",2)
-        super(). __init__(stepper_name, port_number)
-        self.case=Cases()
+        self.stepper1 = StepperHAL("myStepper1",1)  #Conversion open, for test still different 
+        self.stepper2 = StepperHAL("myStepper2",2)
+        #super(). __init__(stepper_name, port_number)
+        #self.case=Cases()
+        self.encoder=Encoder()
+        self.total_score=0
 
     async def set_start_position(self):
         """
@@ -39,52 +40,69 @@ class Stepper(StepperHAL): #Control
         """
         await self.set_position(100) #definition open
 
-    async def get_score(self):
+    async def get_score(self, score):
         """
             Control depending on the score 
             Attribute: 
         """
+        #in main: function call!
+        #scores=score.values(score)
+        #total_score=sum(scores)
         # on end:
-        # await self.motor_stop() # todo: change in on_end at game_sdk
-        pass
+        # await self.motor_stop() # todo: change in on_end at game_sdk 
 
-    async def set_values(self, new_sleepy, new_dir):
-        """
-            set variable 
-        """
-        #todo: create a function to value transfer 
-        self.sleepy=new_sleepy
-        self.direction=new_dir
+        #for sim only:
+        if self.total_score<score:
+            total_score=self.total_score+1                      
+            return total_score
 
     async def game_run(self):
         """
             game starts in game sdk
             mapping attributes to rotate()
         """    
+        asyncio.create_task(self.stepper2.rotate()) 
+        asyncio.create_task(self.stepper1.rotate())
+
         while True:
-            print("test I am in game_run loop") #ok, ok
-            await self.rotate() #ok, ok 
-            await self.case.func_dict.get(self.case.func_dict.myStepper1, self.case.func_dict.handler_default)()
+            self.stepper1.sleepy, self.stepper1.direction = await self.stepper1_algo()
+            self.stepper2.sleepy, self.stepper2.direction = await self.stepper2_algo()
+            await asyncio.sleep(0.1)
 
-            # if self.name=='myStepper2': #not ok!!!! 
-            #     self.new_dir=STEPPER.FORWARD                  #No change of direction at Step2            
-            #     self.new_sleepy=0.04
-            #     await self.set_values(self.new_sleepy, self.new_dir)
+    async def stepper1_algo(self):
+        sleepy=0.05
+        old_direction=self.stepper1.direction
+        logging.info(f"I am in stepper1_algo")
+        await asyncio.sleep(0.01)
+    	
+        angle = await self.encoder.angle_calc()
+        angle_max = 7
+        angle_min = -7
+        logging.info(f"stepper angle {angle}")
 
-            # if self.name=='myStepper1':
-            #     start=time.time()
-            #     duration = await time.time()-start
-            #     print(f"{duration}")
-            #     if duration>2:
-            #         self.new_sleepy=0.05
-            #         if self.new_dir==STEPPER.FORWARD:
-            #             self.new_dir=STEPPER.BACKWARD
-            #         else:
-            #             self.new_dir=STEPPER.FORWARD       
-            #         await self.set_values(self.new_sleepy, self.new_dir)
-            #         duration=0                
+        if angle >= angle_max:
+            new_dire=STEPPER.BACKWARD
+            logging.info(f"direction changes")
+            return sleepy, new_dire
 
-        #logging.info(f"set_start_position Duration: {duration}")         
+        elif angle <= angle_min:
+            new_dire=STEPPER.FORWARD
+            
+            return sleepy, new_dire
+        else:
+            return sleepy, old_direction    
+
+    async def stepper2_algo(self):
+        score_goal=20
+        direction=STEPPER.FORWARD
+        current_score=await self.get_score(score_goal)
+        if current_score < score_goal:
+            sleepy=0.03       
+        elif current_score >=score_goal:
+            sleepy=0.01   
+        new_dire=STEPPER.FORWARD
+        return sleepy, direction         
+                  
 
     async def on_exit(self):
         """
@@ -93,28 +111,11 @@ class Stepper(StepperHAL): #Control
         await self.set_start_position() 
         self.close()    #todo: check hal.close
 
-class Cases():
-    def __init__(self):   
-        self.func_dict={
-            'myStepper1': self.handle_St1,
-            self.name=='myStepper2': self.handle_St2,
-            'handle_default':self.handle_default,       
-        }
-        self.enc=Encoder()  
-        self.angle=self.enc.angle_calc
-    async def handle_St1(self):
-        logging.info(self.enc.angle_calc())
-
-    async def handle_St2(self):
-        pass
-    async def handle_default(self):
-        pass    
-
-Step1 = Stepper("myStepper1",1) #for tests 
-Step2 = Stepper("myStepper2",2)
+Tower1=TowerControl()
 
 async def main():
-    await asyncio.gather((Step2.game_run()),(Step1.game_run()))
+    await asyncio.gather(Tower1.game_run())
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.DEBUG)
     asyncio.run(main())

@@ -70,7 +70,7 @@ class TowerControl(): #Control
             await asyncio.sleep(0.1)
 
     async def stepper1_algo(self):
-        sleepy=0.05
+        sleepy=0.03
         old_direction=self.stepper1.direction
         logging.info(f"I am in stepper1_algo")
         await asyncio.sleep(0.01)
@@ -97,9 +97,9 @@ class TowerControl(): #Control
         direction=STEPPER.FORWARD
         current_score=await self.get_score(score_goal)
         if current_score < score_goal:
-            sleepy=0.03       
+            sleepy=0.01       
         elif current_score >=score_goal:
-            sleepy=0.01   
+            sleepy=0.005   
         new_dire=STEPPER.FORWARD
         return sleepy, direction         
                   

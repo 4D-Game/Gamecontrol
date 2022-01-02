@@ -12,6 +12,7 @@ import atexit
 import asyncio
 import board
 import logging
+import RPi.GPIO as EncPin
 
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
@@ -115,7 +116,8 @@ class StepperHAL():
         """
            call in superordinate structure
         """
-        await self.motor_stop()         
+        await self.motor_stop()
+        EncPin.cleanup()        
         logging.info(f"stepperHAL close function: {self.name} close")
 
 
@@ -123,11 +125,20 @@ class Encoder():
     """
         Checking the rocking steppermotor myStepper1
     """
-    def __init__(self):
+    def __init__(self, callback=None):
         self.motor_steps_per_rev=200 #not yet verified 
         self.motor_step_angle=1.8
         self.imp=0                   #for simulation only
-        self.status=0                #for simulation only
+        self.state=0                 
+        self.old_state=0
+        self.enc_imp=0
+        EncPin.setmode(EncPin.BCM)
+        self.Pin_A=17
+        self.Pin_B=18
+        EncPin.setup(self.Pin_A, EncPin.IN)
+        EncPin.setup(self.Pin_B, EncPin.IN)
+        EncPin.add_event_detect(self.Pin_A, EncPin.RISING, callback=self.enc_impulses)
+        #EncPin.add_event_detect(self.Pin_B, EncPin.RISING, callback=self.enc_impulses)
 
     async def set_imp_zero(self):
         """
@@ -139,22 +150,44 @@ class Encoder():
         logging.info(f"Encoder.set_imp_zero values: old {old_imp_val} new {self.imp}")
        
     async def impulses(self): 
-        if self.status==0:
+        if self.state==0:
                 self.imp=self.imp+1
                 #logging.info(f"Encoder.impulses: value {self.imp}")
                 await asyncio.sleep(0.5)
                 if self.imp==5:
-                    self.status=1
-        elif self.status==1:           
+                    self.state=1
+        elif self.state==1:           
                 self.imp=self.imp-1
                 #logging.info(f"Encoder.impulses: value {self.imp}")
                 await asyncio.sleep(0.5)
                 if self.imp==-5:
-                    self.status=0
+                    self.state=0
         else:
             logging.info(f"Error in impuls simulation")
 
         #return self.imp #for test only
+
+    async def enc_impulses(self, channel):
+        self.current_A=EncPin.input(self.Pin_A)
+        self.current_B=EncPin.input(self.Pin_B)
+        self.state="{}{}".format(self.current_A, self.current_B)
+
+        if self.state == "11":  #Forward     
+            self.enc_imp=self.enc_imp+1
+            #logging.info(f"Encoder.impulses: value {self.imp}")
+
+        elif self.state == "10": #Backward
+            self.enc_imp=self.enc_imp-1 
+            #logging.info(f"Encoder.impulses: value {self.imp}")
+
+        self.old_state=self.state
+        await asyncio.sleep(0.1) 
+        #self.old_A=self.current_A
+        #self.old_B=self.current_B
+        EncPin.cleanup()
+
+    async def get_enc_imp(self):
+        return self.enc_imp        
 
     async def angle_calc(self):
         await self.impulses()

@@ -138,9 +138,10 @@ class Encoder():
         self.Pin_B=25  #RX Enc
         EncPin.setup(self.Pin_A, EncPin.IN)
         EncPin.setup(self.Pin_B, EncPin.IN)
-        self.callback=callback; 
-        EncPin.add_event_detect(self.Pin_A, EncPin.RISING, callback=self.enc_impulses)
-        EncPin.add_event_detect(self.Pin_B, EncPin.RISING, callback=self.enc_impulses)    
+        self.callback=callback
+         
+        EncPin.add_event_detect(self.Pin_A, EncPin.BOTH, callback=self.enc_impulses)
+        EncPin.add_event_detect(self.Pin_B, EncPin.BOTH, callback=self.enc_impulses)        
 
     async def set_imp_zero(self):
         """
@@ -177,23 +178,47 @@ class Encoder():
         self.current_B=await EncPin.input(self.Pin_B)
         self.state=await "{}{}".format(self.current_A, self.current_B)
 
-        if self.state == "11":  #Forward     
-            self.enc_imp=await self.enc_imp+1
-            logging.info(f"Encoder.impulses: value {self.enc_imp}")
+        # if self.state == "11":  #Forward    #only rising edge version
+        #     self.enc_imp=await self.enc_imp+1
+        #     logging.info(f"Encoder.impulses: value {self.enc_imp}")
 
-        elif self.state == "10": #Backward
-            self.enc_imp=await self.enc_imp-1 
-            logging.info(f"Encoder.impulses: value {self.enc_imp}")
-        
-        self.old_state=self.state
-        if self.callback is not None: 
-            self.callback(self.enc_imp)       
+        # elif self.state == "10": #Backward
+        #     self.enc_imp=await self.enc_imp-1 
+        #     logging.info(f"Encoder.impulses: value {self.enc_imp}")
+
+        if self.old_state=='00':
+            if self.state=='01':
+                self.enc_imp=self.enc_imp #turn right #no inc
+            elif self.state=='10':
+                self.enc_imp=await self.enc_imp-1 #turn left #ok
+                if self.callback is not None:
+                    self.callback(self.enc_imp) 
+
+        elif self.old_state=='01':
+            if self.state=='11':
+                self.enc_imp=await self.enc_imp+1 #turn right #ok
+                if self.callback is not None:
+                    self.callback(self.enc_imp)                   
+            elif self.state=='00':
+                self.enc_imp= self.enc_imp #turn left #no dec 
+
+        elif self.old_state=='10': #can be removed
+            if self.state=='00':
+                self.enc_imp= self.enc_imp #turn right #no inc
+            elif self.state=='11':
+                self.enc_imp= self.enc_imp #turn left  #no dec  
+
+        elif self.old_state=='11': #can be removed  
+            if self.state=='10':
+                self.enc_imp=self.enc_imp #turn right #no inc
+            elif self.state=='01':
+                self.enc_imp=self.enc_imp #turn left #no dec
+
+        self.old_state=self.state    
         await asyncio.sleep(0.001) 
-        #self.old_A=self.current_A
-        #self.old_B=self.current_B       
-
+      
     async def get_enc_imp(self):
-        return await self.enc_imp        
+        return self.enc_imp        
 
     async def angle_calc(self):
         await self.get_enc_imp()

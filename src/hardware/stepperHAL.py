@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
 """
-Created: 12/08/21
+Created: 08/01/22
 by: Sonja Lukas
-Tower control with 2 stepper
-Hardware part 
-version MotorKit
+Tower control with 2 stepper 
+version Motor HAT library: MotorKit
+classes: StepperHAL, Encoder        
 """
-import time
+
 import atexit
 import asyncio
 import board
 import logging
 import RPi.GPIO as GPIO
-import sys
 
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
@@ -21,47 +20,58 @@ from adafruit_motorkit import MotorKit
 logging.basicConfig(level=logging.INFO)
 
 class StepperHAL():
-    #step_style=STEPPER.DOUBLE
     def __init__(self, stepper_name, port_number, stop_at_exit=True): 
         """
-            with '_station' create an MotorKit Object
-            'turn_off_motor' required for auto-disabling motors on shutdown
+            Stepper hardware application layer 
+
+            Arguments:
+                stepper_name: stepper naming 
+                port_number: Motor HAT ports 1,2
+                stop_at_exit: in case of crash or manual end Motor stop
+
+            Attributes: 
+                _station: create an MotorKit Object
+                atexit.register: required for auto-disabling motors on shutdown
+                motor: map stepper
+                direction: stepper direction with default FORWARD
+                step_style: step type with default DOUBLE
+                interval: waiting time
         """      
-        self._station=MotorKit(i2c=board.I2C())    #composition attribute
+        self._station=MotorKit(i2c=board.I2C())    
         if stop_at_exit:
-            atexit.register(self.turn_off_motor)   #self.stop 
-        self.name=stepper_name                     #gets myStepper1 and myStepper2
-        self.port_number=port_number               #only 1 or 2!
-    
+            atexit.register(self.turn_off_motor)  
+        self.name=stepper_name                     
+        self.port_number=port_number                  
         if port_number==1:
             self.motor=self._station.stepper1 
         elif port_number==2:
-            self.motor=self._station.stepper2
-
-        self.sleepy=0.05  #naming open #without self test open #default=0.05
-        self.direction=STEPPER.FORWARD #default=FORWARD
-        self.step_style=STEPPER.DOUBLE #default=DOUBLE    
+            self.motor=self._station.stepper2       
+        self.direction=STEPPER.FORWARD 
+        self.step_style=STEPPER.DOUBLE    
+        self.interval=0.05
 
     async def get_position(self):
         """
-            returns current stepper position - for point system or game start       
+            returns current stepper position as angle - for point system or game start       
         """
         angle_pos=await Encoder.angle_calc()
-        position = 50                  #only for current test!!!!!!!!!!!!!!!!!!!!!!!!!
-        logging.info(f"current position is {position} and angle {angle_pos}")
-        return int(position), int(angle_pos)
+        logging.info(f"current angle: {angle_pos}")
+        pos_current=int(angle_pos/1.8)
+        return int(pos_current)
 
     async def set_position(self, pos_goal) -> int:
         """
-            set stepper position for game start
-            Arguments:  pos_goal
-                        rpm
+            Reading the current angle position
+            Set stepper to goal angle for game start or on game
+            Calculatio step size
+
+            Arguments: 
+                pos_goal: target position to be moved to         
         """ 
         pos_current=await self.get_position()
-        
         logging.info(f"Port {self.name} current position {pos_current}")
 
-        steps:int=pos_current-pos_goal      #calc step size    
+        steps:int=pos_current-pos_goal     
         if steps>0:
             logging.info(f"steps to go {steps}")
             for step in range(steps):
@@ -82,7 +92,7 @@ class StepperHAL():
         """    
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
-            await asyncio.sleep(self.sleepy)
+            await asyncio.sleep(self.interval)
             #logging.info(f"rotate: {self.name} direction: {self.direction} with sleeptime {self.sleepy}") 
     
     async def motor_stop(self):
@@ -90,74 +100,74 @@ class StepperHAL():
             single motor hold for play algorithm
         """
         self.motor.release()
+        logging.info(f"Check on hardware: motor stop {self.name}")
           
     def turn_off_motor(self):
         """
             Auto-disabling motors on shutdown   
         """
         self.motor.release()
-        logging.info(f"Check on hardware: both ports release")
+        logging.info(f"Check on hardware: port release {self.name}")
         
     async def close(self):
         """
            call in superordinate structure
         """
         await self.motor_stop()
-        #GPIO.cleanup() 
+        logging.info(f"stepperHAL close: {self.name}")
         await Encoder.remove_event_detect() 
-        logging.info(f"stepperHAL close function: {self.name} close")
-
-
+        logging.info(f"Encoder GPIO clear")
 
 class Encoder():
     """
-        Checking the rocking steppermotor myStepper1
+        Class to proof the rocking steppermotor myStepper1
+        Connection asyncio and GPIO thread
+
+        Attributes:
+            pin_A: Encoder channel A connected to GPIO pin 25, Tx
+            pin_B: Encoder channel B connectet to GPIO pin 24, Rx
+            Event: BOTH rising and falling edges 
     """
-    def __init__(self, loop=None, callback=None):
-        self.motor_steps_per_rev=200 #not yet verified 
+    def __init__(self, loop=None, callback=None, direction=None):
         self.motor_step_angle=1.8
-        self.imp=0                   #for simulation only
+        #self.imp=0                   #for simulation only
         self.state='00'                 
         self.old_state='00'
         self.enc_imp=0
+        self.direction=direction
         self.callback=callback
         self.loop=loop 
 
-        GPIO.setwarnings(True)
+        GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
-        self.Pin_A=25  #TX Enc
-        self.Pin_B=24  #RX Enc
-        GPIO.setup(self.Pin_A, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-        GPIO.setup(self.Pin_B, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+        self.Pin_A=25  
+        self.Pin_B=24  
+        GPIO.setup(self.Pin_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.Pin_B, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-        def on_gpio_event(channel):
-            print('on_gpio_event, next step should be enc_impulses')
-            self.enc_impulses()
-            asyncio.sleep(0.002)
-            self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread)
+        self.loop=asyncio.get_event_loop()        
+        GPIO.add_event_detect(self.Pin_A, GPIO.BOTH, callback=self.enc_impulses)
+        #GPIO.add_event_detect(self.Pin_B, GPIO.RISING, callback=self.enc_impulses) 
 
-        self.loop=asyncio.get_event_loop()
-        GPIO.add_event_detect(self.Pin_A, GPIO.RISING, callback=on_gpio_event)
-                             
     @asyncio.coroutine
-    def stop_loop(self):
-        yield from asyncio.sleep(1)
+    def gpio_event_on_loop_thread(self):
+        """
+            Stop the created loop after detection: async coroutine function call
+        """
+        #asyncio.sleep(0.001)
         logging.info('Stopping Event Loop')
-        asyncio.get_event_loop().stop()
-
-    async def gpio_event_on_loop_thread(self):
-        await self.stop_loop()      
+        asyncio.get_event_loop().stop()    
 
     async def set_imp_zero(self):
         """
             Function to set pulse counter to 0,
             required at game_start
         """
-        old_imp_val=self.imp
-        self.imp=0         #not yet practical 
-        logging.info(f"Encoder.set_imp_zero values: old {old_imp_val} new {self.imp}")
+        old_imp_val=self.enc_imp
+        self.enc_imp=0         
+        logging.info(f"Encoder.set_imp_zero: old {old_imp_val} new {self.enc_imp}")
        
-    # async def impulses(self): #for test only, without hardware
+    # async def impulses(self):  #for test only, without hardware
     #     if self.state==0:
     #         self.imp=self.imp+1
     #         #logging.info(f"Encoder.impulses: value {self.imp}")
@@ -172,84 +182,75 @@ class Encoder():
     #             self.state=0
     #     else:
     #         logging.info(f"Error in impuls simulation")
+    #     return self.imp #for test only
 
-        #return self.imp #for test only
-
-    @asyncio.coroutine
     def enc_impulses(self, channel):
-        #self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread) 
-        logging.info('Encoder event detected')
-        asyncio.sleep(0.002)
-        #self.enc_imp=await self.enc_imp+1 #first test only 
-        asyncio.sleep(0.001)
-        #await self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread)
-
+        """
+            Event is called when edge is detected on channel 
+                Arguments: 
+                    channel: self.pinA
+        """
         self.current_A= GPIO.input(self.Pin_A)
         self.current_B= GPIO.input(self.Pin_B)
         self.state="{}{}".format(self.current_A, self.current_B)
-       
-        # if self.state == "11":  #Forward    #only rising edge version
-        #     self.enc_imp=await self.enc_imp+1
-        #     logging.info(f"Encoder.impulses: value {self.enc_imp}")
+        
+        if self.old_state=='00':
+            if self.state=='01':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction ->")
+                self.direction='Right'
+            elif self.state=='10':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction <-")
+                self.direction='Left' 
 
-        # elif self.state == "10": #Backward
-        #     self.enc_imp=await self.enc_imp-1 
-        #     logging.info(f"Encoder.impulses: value {self.enc_imp}")
+        elif self.old_state=='01':
+            if self.state=='11':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction ->")
+                self.direction='Right'                  
+            elif self.state=='00':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction <-")
+                self.direction='Left' 
+                self.enc_imp= self.enc_imp-1 
+                if self.callback is not None:
+                   self.callback(self.enc_imp, self.direction)
 
-        if (self.current_A == 1) and (self.current_B == 0):
-            self.enc_imp=self.enc_imp+1
-            print(f"direction ->")
-            while self.current_B == 0:
-                self.current_B = GPIO.input(self.Pin_B)
-            while self.current_B == 1:
-                self.current_B = GPIO.input(self.Pin_B)
-            return
-    
-        elif (self.current_A == 1) and (self.current_B == 1):
-            self.enc_imp=self.enc_imp-1
-            print(f"direction <-")
-            while self.current_A == 1:
-                self.current_A = GPIO.input(self.Pin_A)
-            return
+        elif self.old_state=='10': 
+            if self.state=='00':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction ->")
+                self.direction='Right'
+                self.enc_imp= self.enc_imp+1 
+                if self.callback is not None:
+                   self.callback(self.enc_imp, self.direction)
+            elif self.state=='11':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction <-")
+                self.direction='Left' 
 
-        # if self.old_state=='00':
-        #     if self.state=='01':
-        #         self.enc_imp=self.enc_imp #turn right #no inc
-        #     elif self.state=='10':
-        #         logging(f"direction <-")
-        #         self.enc_imp=await self.enc_imp-1 #turn left #ok
-        #         if self.callback is not None:
-        #             await self.callback(self.enc_imp) 
+        elif self.old_state=='11': 
+            if self.state=='10':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction ->")
+                self.direction='Right' 
+            elif self.state=='01':
+                logging.info(f"old_state {self.old_state}, new_state {self.state}, direction <-")
+                self.direction='Left' 
 
-        # elif self.old_state=='01':
-        #     if self.state=='11':
-        #         logging(f"direction ->")
-        #         self.enc_imp=await self.enc_imp+1 #turn right #ok
-        #         if self.callback is not None:
-        #             await self.callback(self.enc_imp)                   
-        #     elif self.state=='00':
-        #         self.enc_imp= self.enc_imp #turn left #no dec 
+        self.old_state=self.state                 
+        self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread) 
 
-        # elif self.old_state=='10': #can be removed
-        #     if self.state=='00':
-        #         self.enc_imp= self.enc_imp #turn right #no inc
-        #     elif self.state=='11':
-        #         self.enc_imp= self.enc_imp #turn left  #no dec  
-
-        # elif self.old_state=='11': #can be removed  
-        #     if self.state=='10':
-        #         self.enc_imp=self.enc_imp #turn right #no inc
-        #     elif self.state=='01':
-        #         self.enc_imp=self.enc_imp #turn left #no dec
-        # self.old_state=self.state  
-      
     async def get_enc_imp(self):
+        """
+            Return of the current encoder pulse counter 
+        """
         return self.enc_imp        
 
     async def angle_calc(self):
+        """
+            Stepper angle calculation
+        """
         await self.get_enc_imp()
         total_angle= self.enc_imp * self.motor_step_angle
-        return total_angle #calculation not verified  #input has to be +-angle!!!!
+        return total_angle 
 
     async def remove_event_detect(self):
-        GPIO.cleanup(self.Pin_A, self.Pin_B) 
+        """
+            Clear the GPIO at the end
+        """
+        GPIO.cleanup() 

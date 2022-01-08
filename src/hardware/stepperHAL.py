@@ -12,7 +12,7 @@ import atexit
 import asyncio
 import board
 import logging
-import RPi.GPIO as EncPin
+import RPi.GPIO as GPIO
 
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
@@ -25,9 +25,7 @@ class StepperHAL():
         """
             with '_station' create an MotorKit Object
             'turn_off_motor' required for auto-disabling motors on shutdown
-        """
-        self.enc=Encoder()
-       
+        """      
         self._station=MotorKit(i2c=board.I2C())    #composition attribute
         if stop_at_exit:
             atexit.register(self.turn_off_motor)   #self.stop 
@@ -41,14 +39,19 @@ class StepperHAL():
 
         self.sleepy=0.05  #naming open #without self test open #default=0.05
         self.direction=STEPPER.FORWARD #default=FORWARD
-        self.step_style=STEPPER.DOUBLE #default=DOUBLE   
+        self.step_style=STEPPER.DOUBLE #default=DOUBLE 
+        
+        # try:
+        #     if self.port_number==1:
+        #         self.enc=Encoder()  
+        # except KeyboardInterrupt:
+        #     GPIO.cleanup()
 
     async def get_position(self):
         """
             returns current stepper position - for point system or game start       
         """
-        #todo Encoder()
-        angle_pos=await self.enc.angle_calc()
+        angle_pos=await Encoder.angle_calc()
         position = 50                  #only for current test!!!!!!!!!!!!!!!!!!!!!!!!!
         logging.info(f"current position is {position} and angle {angle_pos}")
         return int(position), int(angle_pos)
@@ -117,10 +120,9 @@ class StepperHAL():
            call in superordinate structure
         """
         await self.motor_stop()
-        EncPin.cleanup() 
-        self.enc.remove_event_detect() 
+        #GPIO.cleanup() 
+        await Encoder.remove_event_detect() 
         logging.info(f"stepperHAL close function: {self.name} close")
-
 
 class Encoder():
     """
@@ -133,15 +135,32 @@ class Encoder():
         self.state='00'                 
         self.old_state='00'
         self.enc_imp=0
-        EncPin.setmode(EncPin.BCM)
-        self.Pin_A=24  #TX Enc
-        self.Pin_B=25  #RX Enc
-        EncPin.setup(self.Pin_A, EncPin.IN)
-        EncPin.setup(self.Pin_B, EncPin.IN)
+        
+        GPIO.setwarnings(True)
+        GPIO.setmode(GPIO.BCM)
+        self.Pin_A=25  #TX Enc
+        self.Pin_B=24  #RX Enc
+        GPIO.setup(self.Pin_A, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+        GPIO.setup(self.Pin_B, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
         self.callback=callback
-         
-        EncPin.add_event_detect(self.Pin_A, EncPin.BOTH, callback=self.enc_impulses)
-        EncPin.add_event_detect(self.Pin_B, EncPin.BOTH, callback=self.enc_impulses)        
+        
+        async def on_gpio_event(channel):
+            logging('Encoder event detected')
+            self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread) 
+
+        self.loop=asyncio.get_event_loop()           
+        GPIO.add_event_detect(self.Pin_A, GPIO.BOTH, callback=self.enc_impulses)
+        #GPIO.add_event_detect(self.Pin_B, GPIO.BOTH, callback=self.enc_impulses)
+                      
+    @asyncio.coroutine
+    def stop_loop(self):
+        #yield from asyncio.sleep(0.01)
+        print('Stopping Event Loop')
+        asyncio.get_event_loop().stop()
+
+    async def gpio_event_on_loop_thread(self):
+        await self.stop_loop()      
+
 
     async def set_imp_zero(self):
         """
@@ -171,11 +190,13 @@ class Encoder():
         #return self.imp #for test only
 
     async def enc_impulses(self, channel):
-        logging.info(f"I am in function enc_impulses") #test
-        self.enc_imp=await self.enc_imp+1 #first test only 
+        self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread) 
+        logging('Encoder event detected')
+        #asyncio.sleep(0.002)
+        #self.enc_imp=await self.enc_imp+1 #first test only 
 
-        self.current_A=await EncPin.input(self.Pin_A)
-        self.current_B=await EncPin.input(self.Pin_B)
+        self.current_A=await GPIO.input(self.Pin_A)
+        self.current_B=await GPIO.input(self.Pin_B)
         self.state=await "{}{}".format(self.current_A, self.current_B)
 
         # if self.state == "11":  #Forward    #only rising edge version
@@ -190,15 +211,17 @@ class Encoder():
             if self.state=='01':
                 self.enc_imp=self.enc_imp #turn right #no inc
             elif self.state=='10':
+                logging(f"direction <-")
                 self.enc_imp=await self.enc_imp-1 #turn left #ok
                 if self.callback is not None:
-                    self.callback(self.enc_imp) 
+                    await self.callback(self.enc_imp) 
 
         elif self.old_state=='01':
             if self.state=='11':
+                logging(f"direction ->")
                 self.enc_imp=await self.enc_imp+1 #turn right #ok
                 if self.callback is not None:
-                    self.callback(self.enc_imp)                   
+                    await self.callback(self.enc_imp)                   
             elif self.state=='00':
                 self.enc_imp= self.enc_imp #turn left #no dec 
 
@@ -226,4 +249,4 @@ class Encoder():
         return total_angle #calculation not verified  #input has to be +-angle!!!!
 
     async def remove_event_detect(self):
-        EncPin.remove_event_detect(self.Pin_A, self.Pin_B) 
+        GPIO.cleanup(self.Pin_A, self.Pin_B) 

@@ -143,10 +143,6 @@ class Encoder():
         GPIO.setup(self.Pin_A, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
         GPIO.setup(self.Pin_B, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
         self.callback=callback
-        
-        async def on_gpio_event(channel):
-            logging('Encoder event detected')
-            self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread) 
 
         self.loop=asyncio.get_event_loop()           
         GPIO.add_event_detect(self.Pin_A, GPIO.BOTH, callback=self.enc_impulses)

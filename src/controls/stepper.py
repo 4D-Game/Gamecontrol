@@ -15,9 +15,9 @@ import time
 import atexit 
 import logging
 import asyncio
-import board
+import RPi.GPIO as GPIO
 
-class TowerControl(): #Control
+class TowerControl():
     """
         Gamecontroll Stepper
     """
@@ -29,8 +29,6 @@ class TowerControl(): #Control
         """
         self.stepper1 = StepperHAL("myStepper1",1)  #Conversion open, for test still different 
         self.stepper2 = StepperHAL("myStepper2",2)
-        #super(). __init__(stepper_name, port_number)
-        #self.case=Cases()
         self.encoder=Encoder()
         self.total_score=0
 
@@ -48,6 +46,7 @@ class TowerControl(): #Control
         #in main: function call!
         #scores=score.values(score)
         #total_score=sum(scores)
+
         # on end:
         # await self.motor_stop() # todo: change in on_end at game_sdk 
 
@@ -63,11 +62,13 @@ class TowerControl(): #Control
         """    
         asyncio.create_task(self.stepper2.rotate()) 
         asyncio.create_task(self.stepper1.rotate())
-
+        asyncio.get_event_loop().run_forever()
+        GPIO.cleanup()
+        
         while True:
             self.stepper1.sleepy, self.stepper1.direction = await self.stepper1_algo()
             self.stepper2.sleepy, self.stepper2.direction = await self.stepper2_algo()
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
 
     async def stepper1_algo(self):
         sleepy=0.03
@@ -76,8 +77,8 @@ class TowerControl(): #Control
         await asyncio.sleep(0.01)
     	
         angle = await self.encoder.angle_calc()
-        angle_max = 7
-        angle_min = -7
+        angle_max=50
+        angle_min=-50
         logging.info(f"stepper angle {angle}")
 
         if angle >= angle_max:
@@ -90,19 +91,18 @@ class TowerControl(): #Control
             
             return sleepy, new_dire
         else:
-            return sleepy, old_direction    
+            return sleepy, old_direction            
 
     async def stepper2_algo(self):
         score_goal=20
         direction=STEPPER.FORWARD
         current_score=await self.get_score(score_goal)
         if current_score < score_goal:
-            sleepy=0.01       
+            sleepy=0.05       
         elif current_score >=score_goal:
-            sleepy=0.005   
+            sleepy=0.05   
         new_dire=STEPPER.FORWARD
-        return sleepy, direction         
-                  
+        return sleepy, direction                          
 
     async def on_exit(self):
         """

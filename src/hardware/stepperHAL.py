@@ -13,6 +13,7 @@ import asyncio
 import board
 import logging
 import RPi.GPIO as GPIO
+import sys
 
 from adafruit_motor import stepper as STEPPER
 from adafruit_motorkit import MotorKit
@@ -39,13 +40,7 @@ class StepperHAL():
 
         self.sleepy=0.05  #naming open #without self test open #default=0.05
         self.direction=STEPPER.FORWARD #default=FORWARD
-        self.step_style=STEPPER.DOUBLE #default=DOUBLE 
-        
-        # try:
-        #     if self.port_number==1:
-        #         self.enc=Encoder()  
-        # except KeyboardInterrupt:
-        #     GPIO.cleanup()
+        self.step_style=STEPPER.DOUBLE #default=DOUBLE    
 
     async def get_position(self):
         """
@@ -95,18 +90,6 @@ class StepperHAL():
             single motor hold for play algorithm
         """
         self.motor.release()
-        #Distinction should not be necessary, test open, hedging? 
-        
-        # if self.name=='myStepper1':
-        #     self.motor.release()
-        #     print(f"Motor {self.name} stop")
-        #     logging.info(f"Motor {self.name} stop")
-        # elif self.name=='myStepper2':
-        #     self.motor.release()
-        #     print(f"Motor {self.name} stop")
-        #     logging.info(f"Motor {self.name} stop") 
-        # else:
-        #     logging.info(f"Motor {self.name} does not stop") 
           
     def turn_off_motor(self):
         """
@@ -124,39 +107,46 @@ class StepperHAL():
         await Encoder.remove_event_detect() 
         logging.info(f"stepperHAL close function: {self.name} close")
 
+
+
 class Encoder():
     """
         Checking the rocking steppermotor myStepper1
     """
-    def __init__(self, callback=None):
+    def __init__(self, loop=None, callback=None):
         self.motor_steps_per_rev=200 #not yet verified 
         self.motor_step_angle=1.8
         self.imp=0                   #for simulation only
         self.state='00'                 
         self.old_state='00'
         self.enc_imp=0
-        
+        self.callback=callback
+        self.loop=loop 
+
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BCM)
         self.Pin_A=25  #TX Enc
         self.Pin_B=24  #RX Enc
         GPIO.setup(self.Pin_A, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
         GPIO.setup(self.Pin_B, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-        self.callback=callback
 
-        self.loop=asyncio.get_event_loop()           
-        GPIO.add_event_detect(self.Pin_A, GPIO.BOTH, callback=self.enc_impulses)
-        #GPIO.add_event_detect(self.Pin_B, GPIO.BOTH, callback=self.enc_impulses)
-                      
+        def on_gpio_event(channel):
+            print('on_gpio_event, next step should be enc_impulses')
+            self.enc_impulses()
+            asyncio.sleep(0.002)
+            self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread)
+
+        self.loop=asyncio.get_event_loop()
+        GPIO.add_event_detect(self.Pin_A, GPIO.RISING, callback=on_gpio_event)
+                             
     @asyncio.coroutine
     def stop_loop(self):
-        #yield from asyncio.sleep(0.01)
-        print('Stopping Event Loop')
+        yield from asyncio.sleep(1)
+        logging.info('Stopping Event Loop')
         asyncio.get_event_loop().stop()
 
     async def gpio_event_on_loop_thread(self):
         await self.stop_loop()      
-
 
     async def set_imp_zero(self):
         """
@@ -185,16 +175,19 @@ class Encoder():
 
         #return self.imp #for test only
 
-    async def enc_impulses(self, channel):
-        self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread) 
-        logging('Encoder event detected')
-        #asyncio.sleep(0.002)
+    @asyncio.coroutine
+    def enc_impulses(self, channel):
+        #self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread) 
+        logging.info('Encoder event detected')
+        asyncio.sleep(0.002)
         #self.enc_imp=await self.enc_imp+1 #first test only 
+        asyncio.sleep(0.001)
+        #await self.loop.call_soon_threadsafe(self.gpio_event_on_loop_thread)
 
-        self.current_A=await GPIO.input(self.Pin_A)
-        self.current_B=await GPIO.input(self.Pin_B)
-        self.state=await "{}{}".format(self.current_A, self.current_B)
-
+        self.current_A= GPIO.input(self.Pin_A)
+        self.current_B= GPIO.input(self.Pin_B)
+        self.state="{}{}".format(self.current_A, self.current_B)
+       
         # if self.state == "11":  #Forward    #only rising edge version
         #     self.enc_imp=await self.enc_imp+1
         #     logging.info(f"Encoder.impulses: value {self.enc_imp}")
@@ -203,38 +196,52 @@ class Encoder():
         #     self.enc_imp=await self.enc_imp-1 
         #     logging.info(f"Encoder.impulses: value {self.enc_imp}")
 
-        if self.old_state=='00':
-            if self.state=='01':
-                self.enc_imp=self.enc_imp #turn right #no inc
-            elif self.state=='10':
-                logging(f"direction <-")
-                self.enc_imp=await self.enc_imp-1 #turn left #ok
-                if self.callback is not None:
-                    await self.callback(self.enc_imp) 
+        if (self.current_A == 1) and (self.current_B == 0):
+            self.enc_imp=self.enc_imp+1
+            print(f"direction ->")
+            while self.current_B == 0:
+                self.current_B = GPIO.input(self.Pin_B)
+            while self.current_B == 1:
+                self.current_B = GPIO.input(self.Pin_B)
+            return
+    
+        elif (self.current_A == 1) and (self.current_B == 1):
+            self.enc_imp=self.enc_imp-1
+            print(f"direction <-")
+            while self.current_A == 1:
+                self.current_A = GPIO.input(self.Pin_A)
+            return
 
-        elif self.old_state=='01':
-            if self.state=='11':
-                logging(f"direction ->")
-                self.enc_imp=await self.enc_imp+1 #turn right #ok
-                if self.callback is not None:
-                    await self.callback(self.enc_imp)                   
-            elif self.state=='00':
-                self.enc_imp= self.enc_imp #turn left #no dec 
+        # if self.old_state=='00':
+        #     if self.state=='01':
+        #         self.enc_imp=self.enc_imp #turn right #no inc
+        #     elif self.state=='10':
+        #         logging(f"direction <-")
+        #         self.enc_imp=await self.enc_imp-1 #turn left #ok
+        #         if self.callback is not None:
+        #             await self.callback(self.enc_imp) 
 
-        elif self.old_state=='10': #can be removed
-            if self.state=='00':
-                self.enc_imp= self.enc_imp #turn right #no inc
-            elif self.state=='11':
-                self.enc_imp= self.enc_imp #turn left  #no dec  
+        # elif self.old_state=='01':
+        #     if self.state=='11':
+        #         logging(f"direction ->")
+        #         self.enc_imp=await self.enc_imp+1 #turn right #ok
+        #         if self.callback is not None:
+        #             await self.callback(self.enc_imp)                   
+        #     elif self.state=='00':
+        #         self.enc_imp= self.enc_imp #turn left #no dec 
 
-        elif self.old_state=='11': #can be removed  
-            if self.state=='10':
-                self.enc_imp=self.enc_imp #turn right #no inc
-            elif self.state=='01':
-                self.enc_imp=self.enc_imp #turn left #no dec
+        # elif self.old_state=='10': #can be removed
+        #     if self.state=='00':
+        #         self.enc_imp= self.enc_imp #turn right #no inc
+        #     elif self.state=='11':
+        #         self.enc_imp= self.enc_imp #turn left  #no dec  
 
-        self.old_state=self.state    
-        await asyncio.sleep(0.001) 
+        # elif self.old_state=='11': #can be removed  
+        #     if self.state=='10':
+        #         self.enc_imp=self.enc_imp #turn right #no inc
+        #     elif self.state=='01':
+        #         self.enc_imp=self.enc_imp #turn left #no dec
+        # self.old_state=self.state  
       
     async def get_enc_imp(self):
         return self.enc_imp        

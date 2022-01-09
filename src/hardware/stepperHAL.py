@@ -36,6 +36,10 @@ class StepperHAL():
                 direction: stepper direction with default FORWARD
                 step_style: step type with default DOUBLE
                 interval: waiting time
+                angle_max: limit rocking forward stepper1 
+                angle_min: limit rocking backward stepper1
+                interval_max: max. waiting time rotate stepper 2
+                interval_min: min. waiting time rotate stepper 2
         """      
         self._station=MotorKit(i2c=board.I2C())    
         if stop_at_exit:
@@ -47,8 +51,14 @@ class StepperHAL():
         elif port_number==2:
             self.motor=self._station.stepper2       
         self.direction=STEPPER.FORWARD 
-        self.step_style=STEPPER.DOUBLE    
+        self.step_style=STEPPER.DOUBLE   
         self.interval=0.05
+        if port_number==1:
+            self.angle_max=20
+            self.angle_min=-20
+        if port_number==2:
+            self.interval_max=0.05
+            self.interval_min=0.01
 
     async def get_position(self):
         """
@@ -93,7 +103,7 @@ class StepperHAL():
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
             await asyncio.sleep(self.interval)
-            #logging.info(f"rotate: {self.name} direction: {self.direction} with sleeptime {self.sleepy}") 
+            #logging.info(f"rotate: {self.name} direction: {self.direction} with sleeptime {self.interval}") 
     
     async def motor_stop(self):
         """
@@ -130,7 +140,8 @@ class Encoder():
     """
     def __init__(self, loop=None, callback=None, direction=None):
         self.motor_step_angle=1.8
-        #self.imp=0                   #for simulation only
+        # self.imp=0                   #for simulation only
+        # self.state_test=0                 #for simulation only
         self.state='00'                 
         self.old_state='00'
         self.enc_imp=0
@@ -138,16 +149,16 @@ class Encoder():
         self.callback=callback
         self.loop=loop 
 
-        GPIO.setwarnings(False)
+        GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BCM)
-        self.Pin_A=25  
+        self.Pin_A=25 #I #A=25
         self.Pin_B=24  
         GPIO.setup(self.Pin_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.Pin_B, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-        self.loop=asyncio.get_event_loop()        
+        self.loop=asyncio.get_event_loop()     
         GPIO.add_event_detect(self.Pin_A, GPIO.BOTH, callback=self.enc_impulses)
-        #GPIO.add_event_detect(self.Pin_B, GPIO.RISING, callback=self.enc_impulses) 
+        GPIO.add_event_detect(self.Pin_B, GPIO.BOTH, callback=self.enc_impulses) 
 
     @asyncio.coroutine
     def gpio_event_on_loop_thread(self):
@@ -168,18 +179,18 @@ class Encoder():
         logging.info(f"Encoder.set_imp_zero: old {old_imp_val} new {self.enc_imp}")
        
     # async def impulses(self):  #for test only, without hardware
-    #     if self.state==0:
+    #     if self.state_test==0:
     #         self.imp=self.imp+1
-    #         #logging.info(f"Encoder.impulses: value {self.imp}")
+    #         logging.info(f"test_impulses: value {self.imp}")
     #         await asyncio.sleep(0.5)
     #         if self.imp==5:
-    #             self.state=1
-    #     elif self.state==1:           
+    #             self.state_test=1
+    #     elif self.state_test==1:           
     #         self.imp=self.imp-1
-    #         #logging.info(f"Encoder.impulses: value {self.imp}")
+    #         logging.info(f"test_impulses: value {self.imp}")
     #         await asyncio.sleep(0.5)
     #         if self.imp==-5:
-    #             self.state=0
+    #             self.state_test=0
     #     else:
     #         logging.info(f"Error in impuls simulation")
     #     return self.imp #for test only
@@ -193,7 +204,7 @@ class Encoder():
         self.current_A= GPIO.input(self.Pin_A)
         self.current_B= GPIO.input(self.Pin_B)
         self.state="{}{}".format(self.current_A, self.current_B)
-        
+
         if self.old_state=='00':
             if self.state=='01':
                 logging.info(f"old_state {self.old_state}, new_state {self.state}, direction ->")

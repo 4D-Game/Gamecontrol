@@ -1,4 +1,3 @@
-import time
 import digitalio
 import board
 import asyncio
@@ -22,6 +21,9 @@ class Display(Game):
         logging.info("Display initalized")
 
     async def on_score(self):
+        """
+            Updates score on the display when a player makes a point
+        """
         scores_dict = self.players.score
         score_A = 0
         score_B = 0
@@ -37,15 +39,15 @@ class Display(Game):
 
     async def on_pregame(self):
         """
-            Display until game starts (ready)
+            Display shows logo until game starts (ready)
         """
         self.display.show_score(0, 0)
         logging.info("ECE Logo")
-        
-        
+         
     async def on_end(self):
         """
-            Display when game end
+            Display shows winner when game ends.
+            After a period of time the display shwos the logo again. 
         """
         scores_dict = self.players.score
         score_A = 0
@@ -71,9 +73,13 @@ class Display(Game):
         logging.info("Final points")
 
     async def on_exit(self, err: Exception = None):
+        """
+            Cleans display when the game is finished.
+        """
         self.display.close()
         logging.info("Black screen")
 
 if __name__ == '__main__':
     disp = Display()
     disp.run("/home/pi/CrazyComet/Gamecontrol/config.toml")
+

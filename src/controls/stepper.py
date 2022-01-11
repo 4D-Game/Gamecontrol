@@ -24,6 +24,11 @@ class TowerControl():
         Gamecontroll Stepper
     """
 
+    # max_angle
+    # min_angle
+    # max_interval
+    # min_interval
+
     def __init__(self):
         """
             instantiation of the 2 steppers and encoder for rocking stepper
@@ -154,6 +159,8 @@ class TowerControl():
         """
         await self.set_start_position()
         self.close()    #todo:::::::::::: check hal.close
+        #stepper1.close()
+        #stepper2.close()
 
 Tower1=TowerControl()
 

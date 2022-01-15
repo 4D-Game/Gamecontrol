@@ -13,83 +13,80 @@ import random
 from typing import Literal
 from adafruit_motor import stepper as STEPPER
 from hardware.stepper_hal import EncoderStepperHAL, StepperHAL
-#from asyncio.tasks import current_task
 
 class TowerControl():
     """
         Gamecontroll Stepper
 
             Attributes:
-                angle_max: limit rocking forward stepper1
-                angle_min: limit rocking backward stepper1
-                interval_max: max. waiting time rotate stepper 2
-                interval_min: min. waiting time rotate stepper 2
+                start_position: set rocking stepper1 in middle position 
+                max_angle: limit rocking forward stepper1
+                min_angle: limit rocking backward stepper1
+                max_interval: max. waiting time rotate stepper 2
+                min_interval: min. waiting time rotate stepper 2
     """
-    max_angle=20
-    min_angle=-20
+    start_position=10
+    max_angle=float(20)
+    min_angle=float(-20)
     max_interval=0.05
     min_interval=0.01
+    max_rock_interval=0.08
+    min_rock_interval=0.05
+    total_score=0
+    score_goal=10       #todo::::: call sdk definition
 
     def __init__(self):
         """
-            instantiation of the 2 steppers and encoder for rocking stepper
-
+            Use encoder device: instantiation of the 2 steppers and encoder for rocking stepper
+            Use step counter: instantiation of the 2 steppers, use step_count for rocking stepper
         """
         self.stepper1 = EncoderStepperHAL("myStepper1",1)
         self.stepper2 = StepperHAL("myStepper2",2)
-        self.total_score=0
-        self.stepper1.encoder.enc_imp=0 
-        self.score_goal=int(50) #todo::::: call sdk definition
+        self.stepper1.encoder.enc_imp=0
 
     async def set_start_position(self):
         """
-            set start position after each game round
+            Set start position at initialisation and after each game round.
+            current version: use variable step_count
         """
-        steps=self.stepper1.encoder.enc_imp
-        await self.stepper1.set_position(steps) #definition open
+        await self.stepper1.set_position(self.start_position) 
 
     async def get_score(self):
         """
             Control depending on the score
-            Attribute:
         """
         #in main: function call!
         #scores=score.values(score)
         #total_score=sum(scores)
 
-        # on end:
-        # await self.motor_stop() # todo: change in on_end at game_sdk
-
-        #for sim only
+        #for use score sim only
         if self.total_score<self.score_goal:
             self.total_score=self.total_score+1
-            await asyncio.sleep(2)
+            await asyncio.sleep(3)
         else:
             self.total_score=0
         return self.total_score
 
     async def game_run(self):
         """
-            game starts in game sdk
             mapping attributes to rotate()
 
             Attributes:
                 stepper1: rocking stepper with random start direction
                 stepper2: rotate stepper
         """
-        stepper1_start_dir=random.randint(0, 1)
-        if stepper1_start_dir==0:
+        stepper1_start_dir=random.randint(1, 2)
+        if stepper1_start_dir==1:
             self.stepper1.direction=STEPPER.FORWARD
         else:
-            self.stepper1.direction=STEPPER.FORWARD
+            self.stepper1.direction=STEPPER.BACKWARD
 
+        asyncio.create_task(self.stepper1.rotate()) #Problem: works much faster than algo calls
         asyncio.create_task(self.stepper2.rotate())
-        asyncio.create_task(self.stepper1.rotate())
-
+    
         while True:
             self.stepper1.interval, self.stepper1.direction = await self.stepper1_algo()
             self.stepper2.interval, self.stepper2.direction = await self.stepper2_algo()
-            await asyncio.sleep(0.01)
 
     async def stepper1_algo(self):
         """
@@ -97,36 +94,42 @@ class TowerControl():
             The rocking speed is determined via random factor, generated with random.uniform.
 
             Attributes
-                angle_max: limit forward rocking value, definition in class stepperHAL
-                angle_min: limit backward rocking value, definition in class stepperHAL
+                max_angle: limit forward rocking value, definition in class stepperHAL
+                max_angle: limit backward rocking value, definition in class stepperHAL
         """
-        interval=random.uniform(0.01,0.05)
-        logging.debug(f"function call stepper1_algo, random interval: {interval}")
+        interval=random.uniform(self.min_rock_interval,self.max_rock_interval)
+        #logging.debug(f"stepper1_algo with random interval: {interval}")
 
         old_direction:Literal=self.stepper1.direction
-        angle = self.stepper1.encoder.angle_calc()
-        logging.debug(f"stepper1_algo get angle {angle}")
+        angle= self.stepper1.step_count*self.stepper1.encoder.motor_step_angle
+        logging.debug(f"stepper1_algo calc angle over steps: {angle} direction {old_direction} random interval {interval}")
+
+        #angle = self.stepper1.encoder.angle_calc()
+        #logging.debug(f"stepper1_algo get angle {angle}")
         if angle >= self.max_angle:
             if old_direction==STEPPER.FORWARD:
                 new_dire=STEPPER.BACKWARD
-                logging.info(f"direction changes: {STEPPER.BACKWARD}, Trigger: max_angle")
-                return interval, new_dire
+                logging.info(f"direction changes to BACKWARD, Trigger: max_angle")
+                return interval, new_dire                
             else:
-                logging.info(f"ERROR Trigger: angle_max")
+                logging.debug(f"Trigger: max_angle")
+                return interval, old_direction 
 
         elif angle <= self.min_angle:
             if old_direction==STEPPER.BACKWARD:
                 new_dire=STEPPER.FORWARD
-                logging.info(f"direction changes: {STEPPER.FORWARD}, Trigger: min_angle")
+                logging.info(f"stepper direction changes to FORWARD, Trigger: min_angle")
                 return interval, new_dire
             else:
-                logging.info(f"ERROR Trigger: angle_min")
+                logging.debug(f"Trigger: min_angle")
+                return interval, old_direction
         else:
+            logging.debug(f"Trigger: 3rd path stepper1_algo")
             return interval, old_direction
 
     async def score_map(self, x, in_min, in_max, out_min, out_max):
         """
-        maps the percentage range -100 to -1 or 1 to 100  to interval range 0.01 to 0.05
+        Maps the score range 0 to maximum to the interval range min to max
 
         """
         return int((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
@@ -153,20 +156,23 @@ class TowerControl():
         """
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-    async def on_exit(self):
+    def on_exit(self):
         """
             threading stop, motor_release via atexit register
         """
-        await self.set_start_position()
-        self.close()    #todo:::::::::::: check hal.close
-        #stepper1.close()
-        #stepper2.close()
+        self.set_start_position()
+        self.stepper1.close()    #todo:::::::::::: check hal.close
+        self.stepper2.close()
 
 Tower1=TowerControl()
-
 async def main():
-    await asyncio.gather(Tower1.game_run())
+    try: 
+        await asyncio.wait_for(Tower1.set_start_position(), timeout=5) #test set_start_position
+        await asyncio.sleep(2)
+        await asyncio.gather(Tower1.game_run())
+    except KeyboardInterrupt:
+        Tower1.on_exit()    
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)    
     asyncio.run(main())

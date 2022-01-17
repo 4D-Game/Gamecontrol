@@ -51,5 +51,16 @@ echo "Install requirements"
 pip3 install -Ur requirements.txt
 echo ""
 
+echo "Install and activation I2C" # check open
+sudo apt-get install -y python3-smbus
+sudo apt-get install -y i2c-tools
+lsmod|grep i2c
+sudo modprobe i2c-dev
+echo ""
+
+echo "Install pigpio lib" #check open
+pip install pigpio
+echo ""
+
 echo ""
 echo "Please reboot the raspberry pi"

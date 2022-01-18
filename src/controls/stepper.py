@@ -26,14 +26,14 @@ class TowerControl():
                 min_interval: min. waiting time rotate stepper 2
     """
     start_position=10
-    max_angle=float(20)
-    min_angle=float(-20)
-    max_interval=0.05
+    max_angle=float(10)
+    min_angle=float(-10)
+    max_interval=0.04
     min_interval=0.01
-    max_rock_interval=0.08
-    min_rock_interval=0.05
+    max_rock_interval=0.05
+    min_rock_interval=0.03
     total_score=0
-    score_goal=10       #todo::::: call sdk definition
+    score_goal=20      #todo::::: call sdk definition
 
     def __init__(self):
         """
@@ -81,7 +81,7 @@ class TowerControl():
         else:
             self.stepper1.direction=STEPPER.BACKWARD
 
-        asyncio.create_task(self.stepper1.rotate()) #Problem: works much faster than algo calls
+        asyncio.create_task(self.stepper1.rock())   #Problem: works much faster than algo calls
         asyncio.create_task(self.stepper2.rotate())
     
         while True:
@@ -109,16 +109,15 @@ class TowerControl():
         if angle >= self.max_angle:
             if old_direction==STEPPER.FORWARD:
                 new_dire=STEPPER.BACKWARD
-                logging.info(f"direction changes to BACKWARD, Trigger: max_angle")
+                logging.info(f"direction changes to BACKWARD, Trigger: algo max_angle")
                 return interval, new_dire                
             else:
                 logging.debug(f"Trigger: max_angle")
                 return interval, old_direction 
-
         elif angle <= self.min_angle:
             if old_direction==STEPPER.BACKWARD:
                 new_dire=STEPPER.FORWARD
-                logging.info(f"stepper direction changes to FORWARD, Trigger: min_angle")
+                logging.info(f"stepper direction changes to FORWARD, Trigger: algo min_angle")
                 return interval, new_dire
             else:
                 logging.debug(f"Trigger: min_angle")
@@ -166,12 +165,12 @@ class TowerControl():
 
 Tower1=TowerControl()
 async def main():
-    try: 
-        await asyncio.wait_for(Tower1.set_start_position(), timeout=5) #test set_start_position
-        await asyncio.sleep(2)
-        await asyncio.gather(Tower1.game_run())
-    except KeyboardInterrupt:
-        Tower1.on_exit()    
+    #try: 
+        #await asyncio.wait_for(Tower1.set_start_position(), timeout=2) #test set_start_position
+        #await asyncio.sleep(2)
+    await asyncio.gather(Tower1.game_run())
+    #except KeyboardInterrupt:
+        #Tower1.on_exit()    
 
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)    

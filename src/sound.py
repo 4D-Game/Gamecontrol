@@ -16,16 +16,30 @@ class Sound(Game):
         self.sound = SoundHAL()
         logging.info("Sound initalized")
 
+    async def on_pregame(self):
+        """
+            Sound till the game starts
+        """
+        self.sound.play_sound(2)
+
+    async def on_start(self):
+        """
+            Stops current sound
+        """
+        self.sound.stop_sound(2)
+
     async def on_score(self):
         """
             Makes sound when a player makes a point
         """
-        self.sound.play_sound(2)
-        await asyncio.sleep(5)
-        self.sound.stop_sound(2)
+        self.sound.play_sound(1)
+        await asyncio.sleep(3)
+        self.sound.stop_sound(1)
 
     async def on_end(self):
         """
             Sound when the game ends.  
         """
-        pass
+        self.sound.play_sound(3)
+        await asyncio.sleep(10)
+        self.sound.stop_sound(3)

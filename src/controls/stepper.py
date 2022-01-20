@@ -9,6 +9,7 @@ Motorkit version
 import logging
 import asyncio
 import random
+import time
 
 from typing import Literal
 from adafruit_motor import stepper as STEPPER
@@ -25,7 +26,7 @@ class TowerControl():
                 max_interval: max. waiting time rotate stepper 2
                 min_interval: min. waiting time rotate stepper 2
     """
-    start_position=10
+    start_position=0
     max_angle=float(10)
     min_angle=float(-10)
     max_interval=0.04
@@ -49,7 +50,8 @@ class TowerControl():
             Set start position at initialisation and after each game round.
             current version: use variable step_count
         """
-        await self.stepper1.set_position(self.start_position) 
+        #self.stepper1.set_position(self.start_position)  # without stopper; used init value start_position
+        await self.stepper1.detect_middle_position()      # with stopper
 
     async def get_score(self):
         """
@@ -81,7 +83,7 @@ class TowerControl():
         else:
             self.stepper1.direction=STEPPER.BACKWARD
 
-        asyncio.create_task(self.stepper1.rock())   #Problem: works much faster than algo calls
+        asyncio.create_task(self.stepper1.rock())  
         asyncio.create_task(self.stepper2.rotate())
     
         while True:
@@ -165,6 +167,8 @@ class TowerControl():
 
 Tower1=TowerControl()
 async def main():
+    #await asyncio.wait_for(Tower1.set_start_position(),timeout=50)
+    #time.sleep(10)
     #try: 
         #await asyncio.wait_for(Tower1.set_start_position(), timeout=2) #test set_start_position
         #await asyncio.sleep(2)

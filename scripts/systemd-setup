@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ ! -d "/usr/lib/systemd/system" ]; then
+    sudo mkdir /usr/lib/systemd/system
+fi
+
+SCRIPT_PATH=$(dirname `which $0`)
+
+echo "copying controller.service to /usr/lib/systemd/system/$1.service"
+sudo cp $SCRIPT_PATH/../$1.service /usr/lib/systemd/system/$1.service
+
+echo "restarting systemd daemon"
+sudo systemctl daemon-reload
+
+echo "enabling controller unit to start after reboot"
+sudo systemctl enable $1
+
+echo "restarting controller unit"
+sudo systemctl restart $1
+
+echo "controller unit status"
+sudo systemctl status $1

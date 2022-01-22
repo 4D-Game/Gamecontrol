@@ -1,0 +1,14 @@
+[Unit]
+Description=4D Game gamecontrol software
+After=network.target pigpiod.service
+Wants=pigpiod.service
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=pi
+Environment="PYTHONPATH=/home/pi/Gamecontrol/src:/home/pi/Gamecontrol/lib/sdk"
+ExecStart=/usr/bin/python3 /home/pi/Gamecontrol/src/main.py
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+REL_PATH="$(dirname `which $0`)/.."
+PROJECT_PATH="$(cd $REL_PATH; pwd -P)"
+
+echo "Updatet packages ---------------------------------------------------------"
+sudo apt update
+sudo apt upgrade -y
+echo ""
+
+echo "Setup Shell environment --------------------------------------------------"
+touch ~/.profile
+echo "export PYTHONPATH=$PROJECT_PATH/src:$PROJECT_PATH/lib/sdk" >> ~/.profile
+echo "export PATH=/home/$USER/.local/bin:$PATH"
+source ~/.profile
+echo ""
+
+echo "Install Python and Pip ---------------------------------------------------"
+sudo apt install python3 python3-pip -y
+echo ""
+
+echo "Install Packages for Display use -----------------------------------------"
+pip3 install Adafruit-Blinka
+pip3 install adafruit-circuitpython-rgb-display
+sudo apt-get install python3-pil
+
+echo ""
+echo "!!! Please aktivate SPI in your /boot/config.txt !!!"

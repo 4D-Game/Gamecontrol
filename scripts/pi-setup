@@ -2,7 +2,7 @@
 
 
 REL_PATH="$(dirname `which $0`)/.."
-PROJECT_PATH="$(cd $REL_PATH; pwd -P)/"
+PROJECT_PATH="$(cd $REL_PATH; pwd -P)"
 
 echo "Updatet packages ---------------------------------------------------------"
 sudo apt update

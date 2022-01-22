@@ -1,3 +1,4 @@
 [submodule "lib/sdk"]
 	path = lib/sdk
-	url = git@github.com:4D-Game/sdk.git
+	url = https://github.com/4D-Game/sdk.git
+	branch = master

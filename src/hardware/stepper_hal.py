@@ -83,13 +83,16 @@ class StepperHAL(HAL):
             logging.debug(f"{self.name} step_count {self.step_count}")
 
             rock_angle=self.step_count*self.motor_step_angle
-            await self.change_direction(rock_angle)     #option: add conditions here
+            self.change_direction(rock_angle)     #option: add conditions here
 
-    async def change_direction(self, angle:float):
+    def change_direction(self, angle:float = None):
         """
             Direction change provided for rocking stepper
             Trigger: min. & max defined angle
             Callback: stopper to prevent overwinding and to reset position
+
+            Arguments:
+                angle: current position in degree
         """
 
         if angle >= self.max_angle or self.forward_stopper.is_pressed:                 #trigger: max. def. angle

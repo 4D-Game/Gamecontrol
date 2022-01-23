@@ -74,7 +74,7 @@ class TowerControl():
             Control depending on the score
         """
 
-        if self.total_score<self.score_goal:
+        if self.total_score<self._score_goal:
             self.total_score=self.total_score+1
             await asyncio.sleep(3)
         else:
@@ -152,7 +152,7 @@ class TowerControl():
         direction:Literal=self.rotate_stepper.direction
         current_score=self._total_score
 
-        interval=self._score_map(current_score, 0, self.score_goal, self.max_interval, self.min_interval)
+        interval=self._score_map(current_score, 0, self._score_goal, self.max_interval, self.min_interval)
         logging.info(f"rotate_algo, score: {current_score} mapping to interval {interval}")
         return interval, direction
 

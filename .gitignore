@@ -5,3 +5,5 @@ docker/mosquitto/data/
 docker/mosquitto/log
 
 ._**
+
+config.toml

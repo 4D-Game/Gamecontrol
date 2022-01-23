@@ -1,5 +1,6 @@
 
-import logging 
+import logging
+import os
 import board
 import digitalio
 from PIL import Image, ImageDraw, ImageFont
@@ -13,7 +14,7 @@ class DisplayHAL(HAL):
 
     def __init__(self):
         """
-            Initialization of the display, configure pins and settings 
+            Initialization of the display, configure pins and settings
             for the spi connection
         """
         cs_pin = digitalio.DigitalInOut(board.CE0)
@@ -25,7 +26,7 @@ class DisplayHAL(HAL):
 
         self.disp = ili9341.ILI9341(
             spi,
-            rotation = rot, 
+            rotation = rot,
             cs = cs_pin,
             dc = dc_pin,
             rst = reset_pin,
@@ -36,17 +37,17 @@ class DisplayHAL(HAL):
 
     def swap_height_width(self, end: bool = False):
         """
-            Adjusts heigth and width to the display screen. 
+            Adjusts heigth and width to the display screen.
             Creates RGB images and drawing objects.
 
             Parameters:
                 end: if display is in end mode
         """
-        if self.disp.rotation % 180 == 90:      
-            height = self.disp.width  
+        if self.disp.rotation % 180 == 90:
+            height = self.disp.width
             width = self.disp.height
         else:
-            width = self.disp.width  
+            width = self.disp.width
             height = self.disp.height
 
         if end == False:
@@ -89,26 +90,26 @@ class DisplayHAL(HAL):
         draw.rectangle((0, 0, width, height), outline = 0, fill = (0, 155, 250))
 
         #Load a TTF font. .ttf font file should be same directory as the python script
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 45)
-        
-        team_A_str = "Team A: " 
+        font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 45)
+
+        team_A_str = "Team A: "
         team_B_str = "Team B: "
 
         y = 50
         x = 30
         #draws string at a given position with set fill color for the text
         draw.text((x, y), team_A_str, font = font, fill = "#FFFFFF")
-        
+
         #adds length of previous string to get new position for the next string
         x += font.getsize(team_A_str)[0]
-        draw.text((x, y), str(score_A), font = font, fill = (255, 0, 0)) 
+        draw.text((x, y), str(score_A), font = font, fill = (255, 0, 0))
 
         #adds heigth of previous string to get new position for the next string
         y += 40 + font.getsize(team_A_str)[1]
         x = 30
         draw.text((x, y), team_B_str, font = font, fill = "#FFFFFF")
         x += font.getsize(team_B_str)[0]
-        draw.text((x, y), str(score_B), font = font, fill = (255, 0, 0))  
+        draw.text((x, y), str(score_B), font = font, fill = (255, 0, 0))
 
         #shows generated image
         self.disp.image(image)
@@ -118,10 +119,10 @@ class DisplayHAL(HAL):
             Shows which Team wons with image and points
         """
         height, width = self.swap_height_width(True)
-            
+
         #Load a font and open winner image
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 40)
-        image = Image.open("win.jpg")
+        font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 40)
+        image = Image.open("/home/pi/Gamecontrol/src/win.jpg")
 
         #scale the image to the smaller screen dimension of the display
         image_ratio = image.width / image.height
@@ -138,7 +139,7 @@ class DisplayHAL(HAL):
         x = scaled_width / 2 - width / 2
         y = scaled_height / 2 - height / 2
         image = image.crop((x, y, x + width, y + height))
-        
+
         #create object to draw on image
         image_editable = ImageDraw.Draw(image)
         y1= 80
@@ -148,10 +149,10 @@ class DisplayHAL(HAL):
 
         #shows generated image
         self.disp.image(image)
-    
+
     def close(self):
         """
-            Cleans display, shows black screen 
+            Cleans display, shows black screen
         """
         height, width, image, draw = self.swap_height_width()
 

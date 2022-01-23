@@ -43,11 +43,11 @@ class Display(Game):
         """
         self.display.show_score(0, 0)
         logging.info("ECE Logo")
-         
+
     async def on_end(self):
         """
             Display shows winner when game ends.
-            After a period of time the display shwos the logo again. 
+            After a period of time the display shwos the logo again.
         """
         scores_dict = self.players.score
         score_A = 0
@@ -81,5 +81,5 @@ class Display(Game):
 
 if __name__ == '__main__':
     disp = Display()
-    disp.run("/home/pi/CrazyComet/Gamecontrol/config.toml")
+    disp.run("/home/pi/Gamecontrol/config.toml")
 

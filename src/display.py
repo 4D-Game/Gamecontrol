@@ -49,35 +49,19 @@ class Display(Game):
             Display shows winner when game ends.
             After a period of time the display shwos the logo again.
         """
-        scores_dict = self.players.score
-        score_A = 0
-        score_B = 0
 
-        for key, value in scores_dict.items():
-            if key in self.config['team_A']:
-                score_A += value
-            elif key in self.config['team_B']:
-                score_B += value
-
-        if score_A or score_B >= 10:
-            if score_A > score_B:
-                points = score_A
-                name = "Team A: "
-            else:
-                points = score_B
-                name = "Team B: "
-
-        self.display.end_display(points, name)
+        self.display.end_display()
         await asyncio.sleep(1)
         self.display.show_circle()
-        logging.info("Final points")
 
     async def on_exit(self, err: Exception = None):
         """
             Cleans display when the game is finished.
         """
+
         self.display.close()
-        logging.info("Black screen")
+
+        await self.on_exit(err)
 
 if __name__ == '__main__':
     disp = Display()

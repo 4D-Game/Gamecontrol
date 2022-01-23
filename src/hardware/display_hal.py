@@ -10,7 +10,19 @@ from hardware.hal import HAL
 class DisplayHAL(HAL):
     """
         Hardware abstraction layer class for RGB Display
+
+        Attributes:
+            TEAM_A_NAME: Name of team A
+            TEAM_B_NAME: Name of team B
+            score_A: Score for team A
+            score_B: Score for team B
     """
+
+
+    TEAM_A_NAME = "Team A: "
+    TEAM_B_NAME = "Team B: "
+    score_A = 0
+    score_B = 0
 
     def __init__(self):
         """
@@ -83,6 +95,10 @@ class DisplayHAL(HAL):
         """
             Shows current score from diffrent Teams
         """
+
+        self.score_A = score_A
+        self.score_B = score_B
+
         height, width, image, draw = self.swap_height_width()
 
         #draw rectangle over the whole display and dye it blue
@@ -92,33 +108,33 @@ class DisplayHAL(HAL):
         #Load a TTF font. .ttf font file should be same directory as the python script
         font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 45)
 
-        team_A_str = "Team A: "
-        team_B_str = "Team B: "
-
         y = 50
         x = 30
         #draws string at a given position with set fill color for the text
-        draw.text((x, y), team_A_str, font = font, fill = "#FFFFFF")
+        draw.text((x, y), self.TEAM_A_NAME, font = font, fill = "#FFFFFF")
 
         #adds length of previous string to get new position for the next string
-        x += font.getsize(team_A_str)[0]
+        x += font.getsize(self.TEAM_A_NAME)[0]
         draw.text((x, y), str(score_A), font = font, fill = (255, 0, 0))
 
         #adds heigth of previous string to get new position for the next string
-        y += 40 + font.getsize(team_A_str)[1]
+        y += 40 + font.getsize(self.TEAM_A_NAME)[1]
         x = 30
-        draw.text((x, y), team_B_str, font = font, fill = "#FFFFFF")
-        x += font.getsize(team_B_str)[0]
+        draw.text((x, y), self.TEAM_B_NAME, font = font, fill = "#FFFFFF")
+        x += font.getsize(self.TEAM_B_NAME)[0]
         draw.text((x, y), str(score_B), font = font, fill = (255, 0, 0))
 
         #shows generated image
         self.disp.image(image)
 
-    def end_display(self, points: int, name: str):
+    def end_display(self):
         """
             Shows which Team wons with image and points
         """
         height, width = self.swap_height_width(True)
+
+        points = self.score_A if self.score_A > self.score_B else self.score_B
+        name = self.TEAM_A_NAME if self.score_A > self.score_B else self.TEAM_B_NAME
 
         #Load a font and open winner image
         font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 40)

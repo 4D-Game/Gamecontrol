@@ -85,7 +85,7 @@ class StepperHAL(HAL):
             rock_angle=self.step_count*self.motor_step_angle
             self.change_direction(rock_angle)     #option: add conditions here
 
-    def change_direction(self, angle:float = None):
+    def change_direction(self, angle:float = 0):
         """
             Direction change provided for rocking stepper
             Trigger: min. & max defined angle

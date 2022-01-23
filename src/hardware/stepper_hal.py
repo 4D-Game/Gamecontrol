@@ -30,7 +30,7 @@ class StepperHAL(HAL):
                 direction: stepper direction with default FORWARD
                 step_style: step type with default DOUBLE
                 interval: initial waiting time
-                step_count: motor rock control without encoder 
+                step_count: motor rock control without encoder
                 frequency: motor shield per default 1600 Hz
                 motor_step_angle: step resolution with step_style DOUBLE
                 max_angle: limit rocking forward stepper1
@@ -41,10 +41,10 @@ class StepperHAL(HAL):
     step_style=STEPPER.DOUBLE
     interval=0.03
     step_count=0
-    motor_step_angle=0.225 
+    motor_step_angle=0.225
     max_angle=float(16)
     min_angle=float(-16)
-    
+
     def __init__(self, stepper_name, port_number, stop_at_exit=True):
         """
             Arguments:
@@ -52,7 +52,7 @@ class StepperHAL(HAL):
                 port_number: Motor HAT ports 1, 2
         """
         station=MotorKit(i2c=board.I2C())
-        station.frequency=1600               #per default 1600Hz       
+        station.frequency=1600               #per default 1600Hz
         self.name=stepper_name
         self.port_number=port_number
         if port_number==1:
@@ -60,94 +60,71 @@ class StepperHAL(HAL):
         elif port_number==2:
             self.motor=station.stepper2
         if stop_at_exit:
-            atexit.register(self.motor_stop)  #necessary as motor voltage is otherwise not released 
-        
+            atexit.register(self.motor_stop)  #necessary as motor voltage is otherwise not released
+
         if port_number ==1:   #position has to change ....
             self.forward_stopper = Button(24, pull_up=True)     #GPIO 24 stopper
             self.backward_stopper = Button(25, pull_up=True)    #GPIO 25 stopper
             self.forward_stopper.when_pressed = self.change_direction
             self.backward_stopper.when_pressed = self.change_direction
 
-    async def rock(self): #rocking stepper1 - new part for test 
+    async def rock(self): #rocking stepper1 - new part for test
         """
-            Rock control stepper1
+            Rock control stepper
         """
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
             await asyncio.sleep(self.interval)
             logging.debug(f"rock_direction: {self.direction} with interval {self.interval}")
 
-            if self.direction == STEPPER.FORWARD:       #stepper1 steps counter
-                self.step_count = self.step_count+1
-                logging.debug(f"{self.name} step_count {self.step_count}")
-            else:
-                self.step_count = self.step_count-1
-                logging.debug(f"{self.name} step_count {self.step_count}")
-            
-            rock_angle=self.step_count*self.motor_step_angle 
-            await self.change_direction(rock_angle)     #option: add conditions here                
-    
+            step = (1 if self.direction == STEPPER.FORWARD else - 1)
+            self.step_count = self.step_count + step
+
+            logging.debug(f"{self.name} step_count {self.step_count}")
+
+            rock_angle=self.step_count*self.motor_step_angle
+            await self.change_direction(rock_angle)     #option: add conditions here
+
     async def change_direction(self, angle:float):
         """
-            Direction change provided for rocking stepper1
+            Direction change provided for rocking stepper
             Trigger: min. & max defined angle
-            Callback: stopper to prevent overwinding and to reset position 
+            Callback: stopper to prevent overwinding and to reset position
         """
-        old_direction:Literal=self.direction
 
-        if self.forward_stopper.is_pressed:        #callback: forward stopper
+        if angle >= self.max_angle or self.forward_stopper.is_pressed:                 #trigger: max. def. angle
             self.direction=STEPPER.BACKWARD
-            logging.info(f"stopper FW pressed")
-        elif self.backward_stopper.is_pressed:     #callback: backward stopper
+            logging.info(f"direction changes to BACKWARD")
+        elif angle <= self.min_angle or self.backward_stopper.is_pressed:               #trigger: min. def. angle
             self.direction=STEPPER.FORWARD
-            logging.info(f"stopper BW pressed")
-
-        if angle >= self.max_angle:                 #trigger: max. def. angle
-            if old_direction==STEPPER.FORWARD:      #security check
-                self.direction=STEPPER.BACKWARD
-                logging.info(f"direction changes to BACKWARD, trigger: max_angle")
-            else:
-                logging.info(f"ERROR change_direction, trigger: max_angle")    
-        elif angle <= self.min_angle:               #trigger: min. def. angle
-            if old_direction==STEPPER.BACKWARD:
-                self.direction=STEPPER.FORWARD
-                logging.info(f"direction changes to FORWARD, trigger: min_angle")
-            else:
-                logging.info(f"ERROR change_direction, trigger min_angle")   
+            logging.info(f"direction changes to FORWARD")
 
     async def rotate(self):
         """
-            Rotating control stepper2
+            Rotating control stepper
         """
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
             await asyncio.sleep(self.interval)
             logging.debug(f"rotate: {self.name} direction: {self.direction} with interval {self.interval}")
 
-            # if self.port_number == 2:                   #currently not used in algo stepper2
-            #     if self.direction == STEPPER.FORWARD:
-            #         self.step_count = self.step_count+1
-            #         logging.debug(f"{self.name} step_count {self.step_count}")
-            #     else:
-            #         self.step_count = self.step_count-1
-            #         logging.debug(f"{self.name} step_count {self.step_count}")
-
     def motor_stop(self):
         """
             single motor hold for play algorithm and after end of game
         """
+
         self.motor.release()
-        logging.info(f"Check release on hardware: motor stop {self.name}")
 
     def close(self):
         """
            stop and release motor
         """
+
         self.motor_stop()
-        logging.info(f"StepperHAL close: {self.name}")
+        logging.info(f"Close stepper {self.name}")
 
 
-class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an encoder 
+class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an encoder
     """
         Stepper hardware abstraction layer for rocking stepper1 with stopper or encoder(stucture preparation only)
 
@@ -170,7 +147,7 @@ class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an
         super().__init__(stepper_name, port_number, stop_at_exit=True)
         #self.encoder = Encoder()      #currently not used
 
-    async def get_position(self):      #currently without stopper 
+    async def get_position(self):      #currently without stopper
         """
             Use encoder device: returns current stepper position - for point system or game start
             Use step counter: returns the variable step_count
@@ -182,42 +159,45 @@ class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an
         # logging.debug(f"current angle: {angle_pos}")
         # pos_current=int(angle_pos/self.encoder.motor_step_angle)
         # return int(pos_current)     #Algo adaptation necessary so that angle can be passed
-        
-    async def detect_middle_position(self): #with stopper    
+
+    async def calibrate(self): #with stopper
         """
-            Determine middle position rocking stepper1 by stopper
+            Determine middle position rocking stepper by stopper
         """
+
         direction=STEPPER.FORWARD               #used current interval
-        self.interval=0.1
+        interval=0.05
         while(not self.forward_stopper.is_pressed):
             self.motor.onestep(direction=direction, style=self.step_style)
-            await asyncio.sleep(self.interval)
+            await asyncio.sleep(interval)
 
         direction=STEPPER.BACKWARD
         counter=0
         while(not self.backward_stopper.is_pressed):
             self.motor.onestep(direction=direction, style=self.step_style)
-            await asyncio.sleep(self.interval)
-            counter=counter+1
-            logging.info(f"check_middle_pos counter: {counter}")
-        middle=int(abs(counter/2))
-        
-        for _ in range(abs(middle)):
-            self.motor.onestep(direction=STEPPER.FORWARD, style=self.step_style)
-            await asyncio.sleep(self.interval) 
-        logging.info(f"detect_middle_position: steps {middle}")
-        self.step_count=0             #start_position; counter reset
-       
+            await asyncio.sleep(interval)
+            counter += 1
 
-    async def set_position(self, pos_goal: int) -> int: #without stopper 
+        middle=round(counter/2)
+        logging.info(f"Found center at {middle} steps")
+
+        for _ in range(middle):
+            self.motor.onestep(direction=STEPPER.FORWARD, style=self.step_style)
+            await asyncio.sleep(interval)
+
+        self.step_count=0             #start_position; counter reset
+
+
+    async def set_position(self, pos_goal: int) -> int: #without stopper
         """
             Reading the current position
             Set stepper to goal position for game start
             Calculation step size
 
             Arguments:
-                pos_goal: target position to be moved to
+                pos_goal: target position to be moved to in steps (negative => backward, positive => forward)
         """
+
         pos_current = await self.get_position()
         logging.debug(f"Port {self.name} current position {pos_current}")
 
@@ -228,25 +208,22 @@ class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an
 
         for _ in range(abs(steps)):
             self.motor.onestep(direction=direction, style=self.step_style)
-            await asyncio.sleep(self.interval) 
+            await asyncio.sleep(self.interval)
+
             if direction == STEPPER.FORWARD:
-                self.step_count = self.step_count+1 
-                logging.debug(f"{self.name} step_count {self.step_count}")
+                self.step_count = self.step_count+1
             else:
                 self.step_count = self.step_count-1
-                logging.debug(f"{self.name} step_count {self.step_count}")
+
+            logging.debug(f"{self.name} step_count {self.step_count}")
 
         pos_current = await self.get_position()
         logging.debug(f"{self.name} check {pos_current} = {pos_goal} as start position?")
         return pos_current
 
-    async def close(self):
-        await super().close()
-
-
 class Encoder():
     """
-        Code not yet verified due to missing hardware: 
+        **!!! Code not yet verified due to missing hardware:**
 
         Class to proof the rocking steppermotor myStepper1
         Connection asyncio and GPIO thread
@@ -259,10 +236,10 @@ class Encoder():
     old_state='00'
     enc_imp=0
 
-    def __init__(self):    
+    def __init__(self):
         self.direction=None
         # self.pin_A=xx    #currently not defined
-        # self.pin_B=xx    #currently not defined    
+        # self.pin_B=xx    #currently not defined
 
         # self.input_A = Button(self.pin_A, pull_up=False)
         # self.input_B = Button(self.pin_B, pull_up=False)
@@ -273,7 +250,7 @@ class Encoder():
 
     async def set_imp_count_zero(self):
         """
-            Not yet verified: 
+            Not yet verified:
             Function to set pulse counter to 0,
             required at game_start
         """
@@ -284,7 +261,7 @@ class Encoder():
     def enc_impulses(self):
         """
             Event callbacks when edges are detected.
-            Use Gray Code            
+            Use Gray Code
         """
         current_A= int(self.input_A.is_pressed)
         current_B= int(self.input_B.is_pressed)

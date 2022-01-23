@@ -54,7 +54,6 @@ echo ""
 echo "Install and activation I2C ------------------------------------------------" # check open
 sudo apt-get install -y python3-smbus
 sudo apt-get install -y i2c-tools
-lsmod|grep i2c
 sudo modprobe i2c-dev
 echo ""
 
@@ -69,4 +68,5 @@ sudo systemctl restart pigpiod
 echo ""
 
 echo ""
-echo "Please reboot the raspberry pi"
+echo "!!! Please aktivate I2C in your /boot/config.txt !!!"
+echo "!!! Set the I2C speed to 1 MHz !!!"

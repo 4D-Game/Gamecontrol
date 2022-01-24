@@ -102,8 +102,8 @@ class DisplayHAL(HAL):
             Shows current score from diffrent Teams
         """
 
-        self.score_A = score_A
-        self.score_B = score_B
+        self.score_A = 10 if score_A > 10 else self.score_A = score_A
+        self.score_B = 10 if score_B > 10 else self.score_B = score_B
 
         height, width, image, draw = self.swap_height_width()
 

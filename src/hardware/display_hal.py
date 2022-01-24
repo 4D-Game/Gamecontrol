@@ -142,9 +142,6 @@ class DisplayHAL(HAL):
         points = self.score_A if self.score_A > self.score_B else self.score_B
         name = self.TEAM_A_NAME if self.score_A > self.score_B else self.TEAM_B_NAME
 
-        #Load a font and open winner image
-        font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 40)
-
         if name is self.TEAM_A_NAME:
             image = Image.open("/home/pi/Gamecontrol/src/assets/team_a_win.jpg")
         else:
@@ -165,13 +162,6 @@ class DisplayHAL(HAL):
         x = scaled_width / 2 - width / 2
         y = scaled_height / 2 - height / 2
         image = image.crop((x, y, x + width, y + height))
-
-        #create object to draw on image
-        image_editable = ImageDraw.Draw(image)
-        y1= 80
-        x1 = 30
-        #print team name and points on image
-        image_editable.text((x1, y1), name + str(points), font = font, fill= "Red")
 
         #shows generated image
         self.disp.image(image)

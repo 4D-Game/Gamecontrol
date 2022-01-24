@@ -51,7 +51,7 @@ class Display(Game):
         """
 
         self.display.end_display()
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
         self.display.show_circle()
 
     async def on_exit(self, err: Exception = None):

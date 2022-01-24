@@ -24,6 +24,12 @@ class DisplayHAL(HAL):
     score_A = 0
     score_B = 0
 
+    BACKGROUND_COLOR = (34, 36, 47)
+    TEXT_COLOR = (255, 255, 255)
+    PRIMARY_COLOR = (0, 155, 250)
+    TEAM_A_COLOR = (0, 155, 250)
+    TEAM_B_COLOR = (252, 126, 9)
+
     def __init__(self):
         """
             Initialization of the display, configure pins and settings
@@ -82,7 +88,7 @@ class DisplayHAL(HAL):
 
         #draw rectangle over the whole display and dye it blue
         #(x0, y0, x1, y1), color to use for outline, color to use for the fill
-        draw.rectangle((0, 0, width, height), outline = 0, fill = (0, 155, 250))
+        draw.rectangle((0, 0, width, height), outline = 0, fill = self.PRIMARY_COLOR)
 
         #draw ellipse inside the bounding box: (x0, y0, x1, y1)
         #outline color of ellipse is white, width is line width in pixels
@@ -103,7 +109,7 @@ class DisplayHAL(HAL):
 
         #draw rectangle over the whole display and dye it blue
         #(x0, y0, x1, y1), color to use for outline, color to use for the fill
-        draw.rectangle((0, 0, width, height), outline = 0, fill = (0, 155, 250))
+        draw.rectangle((0, 0, width, height), outline = 0, fill = self.BACKGROUND_COLOR)
 
         #Load a TTF font. .ttf font file should be same directory as the python script
         font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 45)
@@ -111,18 +117,18 @@ class DisplayHAL(HAL):
         y = 50
         x = 30
         #draws string at a given position with set fill color for the text
-        draw.text((x, y), self.TEAM_A_NAME, font = font, fill = "#FFFFFF")
+        draw.text((x, y), self.TEAM_A_NAME, font = font, fill = self.TEXT_COLOR)
 
         #adds length of previous string to get new position for the next string
         x += font.getsize(self.TEAM_A_NAME)[0]
-        draw.text((x, y), str(score_A), font = font, fill = (255, 0, 0))
+        draw.text((x, y), str(score_A), font = font, fill = self.TEAM_A_COLOR)
 
         #adds heigth of previous string to get new position for the next string
         y += 40 + font.getsize(self.TEAM_A_NAME)[1]
         x = 30
-        draw.text((x, y), self.TEAM_B_NAME, font = font, fill = "#FFFFFF")
+        draw.text((x, y), self.TEAM_B_NAME, font = font, fill = self.TEXT_COLOR)
         x += font.getsize(self.TEAM_B_NAME)[0]
-        draw.text((x, y), str(score_B), font = font, fill = (255, 0, 0))
+        draw.text((x, y), str(score_B), font = font, fill = self.TEAM_B_COLOR)
 
         #shows generated image
         self.disp.image(image)
@@ -138,7 +144,11 @@ class DisplayHAL(HAL):
 
         #Load a font and open winner image
         font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 40)
-        image = Image.open("/home/pi/Gamecontrol/src/win.jpg")
+
+        if name is self.TEAM_A_NAME:
+            image = Image.open("/home/pi/Gamecontrol/src/assets/team_a_win.jpg")
+        else:
+            image = Image.open("/home/pi/Gamecontrol/src/assets/team_b_win.jpg")
 
         #scale the image to the smaller screen dimension of the display
         image_ratio = image.width / image.height

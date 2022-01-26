@@ -18,12 +18,16 @@ class SoundHAL(HAL):
 
     def start(self):
         self.start_sound.set_volume(10)
-        self.start_sound.play()
+        self.start_sound.play(loop=-1)
 
     def end(self):
         self.end_sound.set_volume(10)
         self.end_sound.play()
 
     def hit(self):
+        self.start_sound.stop()
         self.hit_sound.set_volume(10)
         self.hit_sound.play()
+
+    def close():
+        pass

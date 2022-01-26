@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 from adafruit_rgb_display import ili9341
 from game_sdk.passive.game import Game
 from hardware.display_hal import DisplayHAL
-from controls.audio import AudioControl
+from hardware.sound_hal import SoundHAL
 import logging
 
 class Display(Game):
@@ -19,7 +19,7 @@ class Display(Game):
             Configures pins and spi for connection of the display
         """
         self.display = DisplayHAL()
-        self.audio = AudioControl()
+        self.audio = SoundHAL()
         logging.info("Display initalized")
 
     async def on_score(self):

@@ -4,7 +4,7 @@ from hardware.hal import HAL
 
 class SoundHAL(HAL):
     """
-        Hardware abstraction layer class for the sounds (Do not instanciate this class. Use `SOUND` instead)
+        Hardware abstraction layer class for the sounds
     """
 
     def __init__(self):
@@ -12,39 +12,18 @@ class SoundHAL(HAL):
             Configures the mixer to play and load needed sounds
         """
         mixer.init()
+        self.start_sound = mixer.Sound("home/pi/Gamecontrol/src/assets/start.wav")
+        self.end_sound = mixer.Sound("home/pi/Gamecontrol/src/assets/end.wav")
+        self.hit_sound = mixer.Sound("home/pi/Gamecontrol/src/assets/score.wav")
 
-    def create_sound(self, path: str) -> mixer.Sound:
-        """
-            Create sound object from file at given path
+    def start(self):
+        self.start_sound.set_volume(10)
+        self.start_sound.play()
 
-            Arguments:
-                path: Path to audiofile
-        """
+    def end(self):
+        self.end_sound.set_volume(10)
+        self.end_sound.play()
 
-        return mixer.Sound(path)
-
-    def play_sound(self, sound: mixer.Sound):
-        """
-            Plays sound depending on event
-
-            Arguments:
-                sound: Sound object
-        """
-
-        sound.set_volume(10)
-        sound.play()
-
-    def stop_sound(self, sound: mixer.Sound):
-        """
-            Stops sound depending on the event
-
-            Arguments:
-                sound: Sound object
-        """
-
-        sound.stop()
-
-SOUND = SoundHAL()
-"""
-    Singleton of the sound interface
-"""
+    def hit(self):
+        self.hit_sound.set_volume(10)
+        self.hit_sound.play()

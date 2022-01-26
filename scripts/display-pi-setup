@@ -26,6 +26,13 @@ echo "Install Packages for Display use -----------------------------------------
 pip3 install Adafruit-Blinka
 pip3 install adafruit-circuitpython-rgb-display
 sudo apt-get install python3-pil -y
+echo ""
+
+echo "Install Packages for Aduio use -------------------------------------------"
+sudo apt-get install alsa-utils
+sudo apt-get install python3-pygame
+sudo apt-get install python3-sdl2
+echo ""
 
 echo ""
 echo "!!! Please aktivate SPI in your /boot/config.txt !!!"

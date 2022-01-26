@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 from adafruit_rgb_display import ili9341
 from game_sdk.passive.game import Game
 from hardware.display_hal import DisplayHAL
+from controls.audio import AudioControl
 import logging
 
 class Display(Game):
@@ -18,6 +19,7 @@ class Display(Game):
             Configures pins and spi for connection of the display
         """
         self.display = DisplayHAL()
+        self.audio = AudioControl()
         logging.info("Display initalized")
 
     async def on_score(self):
@@ -34,6 +36,7 @@ class Display(Game):
             elif key in self.config['team_B']:
                 score_B += value
 
+        self.audio.hit()
         self.display.show_score(score_A, score_B)
         logging.info("Score update")
 
@@ -41,8 +44,8 @@ class Display(Game):
         """
             Display shows logo until game starts (ready)
         """
+        self.audio.start()
         self.display.show_score(0, 0)
-        logging.info("ECE Logo")
 
     async def on_end(self):
         """
@@ -50,6 +53,7 @@ class Display(Game):
             After a period of time the display shwos the logo again.
         """
 
+        self.audio.end()
         self.display.end_display()
         await asyncio.sleep(3)
         self.display.show_circle()

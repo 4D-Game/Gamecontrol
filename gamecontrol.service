@@ -9,6 +9,6 @@ Restart=always
 RestartSec=10
 User=pi
 Environment="PYTHONPATH=/home/pi/Gamecontrol/src:/home/pi/Gamecontrol/lib/sdk"
-ExecStart=sudo modprobe i2c-dev && /usr/bin/python3 /home/pi/Gamecontrol/src/main.py
+ExecStart=/home/pi/Gamecontrol/scripts/run-gamecontrol
 [Install]
 WantedBy=multi-user.target

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo /usr/sbin/modprobe i2c-dev
+/usr/bin/python3 /home/pi/Gamecontrol/src/main.py

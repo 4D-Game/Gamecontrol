@@ -28,14 +28,14 @@ class TowerControl():
                 min_rock_interval: min stepping time for Rock Stepper
     """
 
-    start_position:int=0
-    max_interval:float=0.02
-    min_interval:float=0.005
-    max_rock_interval:float=0.03
-    min_rock_interval:float=0.01
+    start_position:int = 0
+    max_interval:float = 0.02
+    min_interval:float = 0.005
+    max_rock_interval:float = 0.03
+    min_rock_interval:float = 0.01
 
-    _total_score:int=0
-    _score_goal:int=20        #todo::::: call sdk definition
+    _total_score:int = 0
+    _score_goal:int = 20      
 
     _algo_task = None
     _rock_task = None
@@ -54,17 +54,17 @@ class TowerControl():
             Set start position at initialisation and after each game round.
             Current version: uses stopper to determine middle_position
         """
+
         #self.stepper1.set_position(self.start_position)  #without stopper; used init value start_position
-        await self.rock_stepper.calibrate()      #with stopper
+        await self.rock_stepper.calibrate()               #with stopper
 
     def set_score(self, score, max_score):
         """
-            Set total score and max score for the rock and rotation algorithm
+            Set total score and max score for the rotation algorithm
         """
 
         self._total_score = score
         self._score_goal = max_score
-
         self.rotate_stepper.interval, self.rotate_stepper.direction = self._rotate_algo()
 
     async def get_score(self):

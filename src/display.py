@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+
+"""
+Entrypoint to control the displays and audio
+"""
+
 import digitalio
 import board
 import asyncio
@@ -11,7 +17,7 @@ import logging
 
 class Display(Game):
     """
-        Class to manage displaydata
+        Gameclass to manage displays and audio
     """
 
     async def on_init(self):

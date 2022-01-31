@@ -45,7 +45,7 @@ pip3 install -Ur requirements.txt
 
 #### I2C
 
-I2C is needed to communicate with the Adafruit Motorshield. It can be activated with a baudrate of $1MHz$ by adding the following lines to the */boot/config.txt*.
+I2C is needed to communicate with the Adafruit Motorshield. It can be activated with a baudrate of 1MHz by adding the following lines to the */boot/config.txt*.
 
 ```
 dtparam=i2c_arm=on
@@ -102,7 +102,7 @@ card 1: Device [USB Audio Device], device 0: USB Audio [USB Audio]
   Subdevice #0: subdevice #0
 ```
 
-The line we are interested in is `card 1: Device [USB Audio Device], device 0: USB Audio [USB Audio]`. This shows the card ID of the used device is $1$.
+The line we are interested in is `card 1: Device [USB Audio Device], device 0: USB Audio [USB Audio]`. This shows the card ID of the used device is 1.
 
 Now edit the config file using nano:
 
@@ -115,4 +115,13 @@ Change the two follwing values in the file:
 ```bash
 defaults.ctl.card <ID>
 defaults.pcm.card <ID>
+```
+
+### Autostart
+
+The game can be started automatically using `systemd`. Register the service by executing the script `scripts/systemd-setup`. It takes the name of the service (without .service) as first argument.
+
+**Example for *gamecontrol.service***
+```bash
+scripts/systemd-setup gamecontrol
 ```

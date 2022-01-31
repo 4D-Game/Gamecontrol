@@ -10,6 +10,7 @@ nav:
           - Overview: index.md
           - Gamecontrol Setup: setup.md
           - Display Setup: display-setup.md
+          - Config file: config-file.md
           - Code References:
               - Main: code-references/main.md
               - Display: code-references/display.md

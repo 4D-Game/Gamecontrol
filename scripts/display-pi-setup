@@ -29,9 +29,9 @@ sudo apt-get install python3-pil -y
 echo ""
 
 echo "Install Packages for Audio use -------------------------------------------"
-sudo apt-get install alsa-utils
-sudo apt-get install python3-pygame
-sudo apt-get install python3-sdl2
+sudo apt-get install alsa-utils -y
+sudo apt-get install python3-pygame -y
+sudo apt-get install python3-sdl2 -y
 echo ""
 
 echo ""

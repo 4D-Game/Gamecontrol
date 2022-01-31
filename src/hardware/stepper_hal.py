@@ -1,13 +1,3 @@
-#!/usr/bin/env python3
-
-"""
-Created: 21/01/22
-by: Sonja Lukas
-Hardware Layer
-Tower control with 2 stepper
-Library for motor shield: adafruit_motorkit
-classes: StepperHAL, EncoderStepperHAL, Encoder
-"""
 import asyncio
 import board
 import logging
@@ -33,7 +23,7 @@ class StepperHAL(HAL):
                 motor_step_angle: step resolution with step_style DOUBLE
                 max_angle: max rocking angle
                 min_angle: min rocking angle
-                motor: map stepper at the shield 
+                motor: Stepper reference
                 forward_stopper: micro-limit-switch at GPIO Pin 24
                 backward_stopper: micro-limit-switch at GPIO Pin 25
     """
@@ -47,10 +37,13 @@ class StepperHAL(HAL):
 
     def __init__(self, stepper_name, port_number, stop_at_exit=True):
         """
+            Initialize motors and stopper
+
             Arguments:
-                stepper_name: stepper naming
+                stepper_name: Name of the stepper
                 port_number: Motor HAT ports 1, 2
         """
+
         station=MotorKit(i2c=board.I2C())
         self.name=stepper_name
         self.port_number=port_number
@@ -61,7 +54,7 @@ class StepperHAL(HAL):
         if stop_at_exit:
             atexit.register(self.motor_stop)  #necessary as motor voltage is otherwise not released
 
-        if port_number ==1:   
+        if port_number ==1:
             self.forward_stopper = Button(24, pull_up=True)             #GPIO 24 stopper
             self.backward_stopper = Button(25, pull_up=True)            #GPIO 25 stopper
             self.forward_stopper.when_pressed = self.change_direction   #Callback functions
@@ -69,8 +62,9 @@ class StepperHAL(HAL):
 
     async def rock(self): #Rocking Stepper
         """
-            Rock control stepper
+            Rock stepper within given angle
         """
+
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
             await asyncio.sleep(self.interval)
@@ -86,9 +80,7 @@ class StepperHAL(HAL):
 
     def change_direction(self, angle:float = 0):  #Rocking Stepper
         """
-            Direction change provided for rocking stepper
-            Trigger: min. & max defined angle
-            Callback: stopper to prevent overwinding and to reset position
+            Change direction when stopper is pressed
 
             Arguments:
                 angle: current position in degree
@@ -103,8 +95,9 @@ class StepperHAL(HAL):
 
     async def rotate(self):
         """
-            Rotating control stepper
+            Rotate stepper
         """
+
         while True:
             self.motor.onestep(direction=self.direction, style=self.step_style)
             await asyncio.sleep(self.interval)
@@ -128,17 +121,13 @@ class StepperHAL(HAL):
 
 class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an encoder
     """
-        Stepper hardware abstraction layer for Rocking Stepper with stopper or encoder(stucture preparation only)
+        Stepper hardware abstraction layer for Rocking Stepper with encoder simulated by counting the steps
 
         Attributes:
-                motor: map stepper
-                encoder: placed for Rocking Stepper Encoder
                 direction: stepper direction with default FORWARD
                 step_style: step type with default DOUBLE
                 max_angle: forward limit for Rocking Stepper
                 min_angle: backward limit for Rocking Stepper
-                forward_stopper: software rock protection with stopper instead of an encoder for Rocking Stepper
-                backward_stopper: software rock protection with stopper instead of an encoder for Rocking Stepper
     """
 
     def __init__(self, stepper_name, port_number, stop_at_exit=True):
@@ -152,9 +141,10 @@ class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an
 
     async def get_position(self):      #currently without stopper
         """
-            Use encoder device: returns current stepper position - for point system or game start
-            Use step counter: returns the variable step_count
+            Return:
+                Stepper position in steps (0 == Center)
         """
+
         return self.step_count  #WITHOUT encoder device
 
         #WITH encoder device - not verified due to missing working hardware
@@ -193,9 +183,7 @@ class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an
 
     async def set_position(self, pos_goal: int) -> int: #without stopper
         """
-            Reading the current position
-            Set stepper to goal position for game start
-            Calculation step size
+            Move stepper to given position
 
             Arguments:
                 pos_goal: target position to be moved to in steps (negative => backward, positive => forward)
@@ -226,10 +214,10 @@ class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an
 
 class Encoder():
     """
-        **!!! Code not yet verified due to missing hardware:**
+        !!! WARNING
+            Encoder not yet verified due to missing hardware
 
-        Class to proof the rocking steppermotor myStepper1
-        Connection asyncio and GPIO thread
+        Class to get position information from encoder
 
         Attributes:
             pin_A: Encoder channel A connected to GPIO pin for Tx
@@ -253,20 +241,18 @@ class Encoder():
 
     async def set_imp_count_zero(self):
         """
-            Not yet verified:
-            Function to set pulse counter to 0
-            Prepared for game start position
+            Set pulse counter to zero
         """
+
         old_imp_val=self.enc_imp
         self.enc_imp=0
         logging.info(f"Encoder.set_imp_zero: old {old_imp_val} new {self.enc_imp}")
 
     def enc_impulses(self):
         """
-            !!! Deprecated !!!
-            
-            Event callbacks when edges are detected.
-            Use Gray Code
+            Callbacks when edges are detected
+
+            Decode Gray Code and update counter
         """
         current_A= int(self.input_A.is_pressed)
         current_B= int(self.input_B.is_pressed)
@@ -312,10 +298,6 @@ class Encoder():
         """
             Stepper angle calculation
         """
+
         total_angle = self.enc_imp * self.motor_step_angle
         return total_angle
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    Device.pin_factory = PiGPIOFactory()
-    #...

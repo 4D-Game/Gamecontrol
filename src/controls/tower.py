@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-
-"""
-Created: 21/01/22
-by: Sonja Lukas
-Tower control with 2 stepper
-Library for motor shield: adafruit_motorkit
-"""
 import logging
 import asyncio
 import random
@@ -18,14 +10,12 @@ class TowerControl():
     """
         Gamecontroll Stepper
 
-            Attributes:
-                start_position: set Rocking Stepper in center position
-                max_angle: max rocking angle
-                min_angle: min rocking angle
-                max_interval: max stepping time for Rotate Stepper
-                min_interval: min stepping time for Rotate Stepper
-                max_rock_interval: max stepping time for Rock Stepper
-                min_rock_interval: min stepping time for Rock Stepper
+        Attributes:
+            start_position: set Rocking Stepper in center position
+            max_interval: max stepping time for Rotate Stepper
+            min_interval: min stepping time for Rotate Stepper
+            max_rock_interval: max stepping time for Rock Stepper
+            min_rock_interval: min stepping time for Rock Stepper
     """
 
     start_position:int = 0
@@ -35,7 +25,7 @@ class TowerControl():
     min_rock_interval:float = 0.01
 
     _total_score:int = 0
-    _score_goal:int = 20      
+    _score_goal:int = 20
 
     _algo_task = None
     _rock_task = None

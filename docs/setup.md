@@ -11,7 +11,7 @@ To setup everything needed, to run the game there is a setup script, wich can be
 scripts/pi-setup
 ```
 
-After this you have to activate I2C by adding `dtparam=i2c_arm=on` to the */boot/config.txt*. For the use with the Adafruit Motorshield the I2C speed needs to be adjusted to $1MHz$. Add `dtparam=i2c_arm_baudrate=1000000` to the */boot/config.txt*. Next the Raspberry Pi needs to be rebooted.
+After this you have to activate I2C by adding `dtparam=i2c_arm=on` to the */boot/config.txt*. For the use with the Adafruit Motorshield the I2C speed needs to be adjusted to 1MHz. Add `dtparam=i2c_arm_baudrate=1000000` to the */boot/config.txt*. Next the Raspberry Pi needs to be rebooted.
 
 ### Manual
 #### SDK
@@ -47,7 +47,7 @@ pip3 install -Ur requirements.txt
 
 #### I2C
 
-I2C is needed to communicate with the Adafruit Motorshield. It can be activated with a baudrate of $1MHz$ by adding the following lines to the */boot/config.txt*.
+I2C is needed to communicate with the Adafruit Motorshield. It can be activated with a baudrate of 1MHz by adding the following lines to the */boot/config.txt*.
 
 ```
 dtparam=i2c_arm=on

@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 """
-Created: 10.08.21
-by: Lukas Schüttler
-
 Entrypoint to control the Gamecontrol
 """
 
@@ -18,7 +15,14 @@ from controls.tower import TowerControl
 
 
 class CrazyComet(Game):
-    max_score = 10
+    """
+        Gameclass for the gamecontrol
+
+        Attributes:
+            max_score: Score at wich one team wins
+    """
+
+    max_score: int = 10
 
     async def on_init(self):
         self.tower = TowerControl()

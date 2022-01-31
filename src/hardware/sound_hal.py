@@ -17,15 +17,27 @@ class SoundHAL(HAL):
         self.hit_sound = mixer.Sound("home/pi/Gamecontrol/src/assets/score.wav")
 
     def start(self):
+        """
+            Play sound durring the game
+        """
+
         self.start_sound.set_volume(10)
-        self.start_sound.play(loop=-1)
+        self.start_sound.play(-1)
 
     def end(self):
+        """
+            Stop start sound and play sound for the end of the game
+        """
+
+        self.start_sound.stop()
         self.end_sound.set_volume(10)
         self.end_sound.play()
 
     def hit(self):
-        self.start_sound.stop()
+        """
+            Play sound for score
+        """
+
         self.hit_sound.set_volume(10)
         self.hit_sound.play()
 

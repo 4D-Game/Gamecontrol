@@ -10,25 +10,19 @@ from hardware.hal import HAL
 class DisplayHAL(HAL):
     """
         Hardware abstraction layer class for RGB Display
-
-        Attributes:
-            TEAM_A_NAME: Name of team A
-            TEAM_B_NAME: Name of team B
-            score_A: Score for team A
-            score_B: Score for team B
     """
 
 
-    TEAM_A_NAME = "Team A: "
-    TEAM_B_NAME = "Team B: "
-    score_A = 0
-    score_B = 0
+    _TEAM_A_NAME: str = "Team A: "
+    _TEAM_B_NAME: str = "Team B: "
+    _score_A: int = 0
+    _score_B: int = 0
 
-    BACKGROUND_COLOR = (34, 36, 47)
-    TEXT_COLOR = (255, 255, 255)
-    PRIMARY_COLOR = (0, 155, 250)
-    TEAM_A_COLOR = (0, 155, 250)
-    TEAM_B_COLOR = (252, 126, 9)
+    _BACKGROUND_COLOR = (34, 36, 47)
+    _TEXT_COLOR = (255, 255, 255)
+    _PRIMARY_COLOR = (0, 155, 250)
+    _TEAM_A_COLOR = (0, 155, 250)
+    _TEAM_B_COLOR = (252, 126, 9)
 
     def __init__(self):
         """
@@ -88,7 +82,7 @@ class DisplayHAL(HAL):
 
         #draw rectangle over the whole display and dye it blue
         #(x0, y0, x1, y1), color to use for outline, color to use for the fill
-        draw.rectangle((0, 0, width, height), outline = 0, fill = self.PRIMARY_COLOR)
+        draw.rectangle((0, 0, width, height), outline = 0, fill = self._PRIMARY_COLOR)
 
         #draw ellipse inside the bounding box: (x0, y0, x1, y1)
         #outline color of ellipse is white, width is line width in pixels
@@ -102,14 +96,14 @@ class DisplayHAL(HAL):
             Shows current score from diffrent Teams
         """
 
-        self.score_A = 10 if score_A > 10 else score_A
-        self.score_B = 10 if score_B > 10 else score_B
+        self._score_A = 10 if score_A > 10 else score_A
+        self._score_B = 10 if score_B > 10 else score_B
 
         height, width, image, draw = self.swap_height_width()
 
         #draw rectangle over the whole display and dye it blue
         #(x0, y0, x1, y1), color to use for outline, color to use for the fill
-        draw.rectangle((0, 0, width, height), outline = 0, fill = self.BACKGROUND_COLOR)
+        draw.rectangle((0, 0, width, height), outline = 0, fill = self._BACKGROUND_COLOR)
 
         #Load a TTF font. .ttf font file should be same directory as the python script
         font = ImageFont.truetype("/home/pi/Gamecontrol/src/fonts/Roboto-Medium.ttf", 45)
@@ -117,18 +111,18 @@ class DisplayHAL(HAL):
         y = 50
         x = 30
         #draws string at a given position with set fill color for the text
-        draw.text((x, y), self.TEAM_A_NAME, font = font, fill = self.TEXT_COLOR)
+        draw.text((x, y), self._TEAM_A_NAME, font = font, fill = self._TEXT_COLOR)
 
         #adds length of previous string to get new position for the next string
-        x += font.getsize(self.TEAM_A_NAME)[0]
-        draw.text((x, y), str(score_A), font = font, fill = self.TEAM_A_COLOR)
+        x += font.getsize(self._TEAM_A_NAME)[0]
+        draw.text((x, y), str(score_A), font = font, fill = self._TEAM_A_COLOR)
 
         #adds heigth of previous string to get new position for the next string
-        y += 40 + font.getsize(self.TEAM_A_NAME)[1]
+        y += 40 + font.getsize(self._TEAM_A_NAME)[1]
         x = 30
-        draw.text((x, y), self.TEAM_B_NAME, font = font, fill = self.TEXT_COLOR)
-        x += font.getsize(self.TEAM_B_NAME)[0]
-        draw.text((x, y), str(score_B), font = font, fill = self.TEAM_B_COLOR)
+        draw.text((x, y), self._TEAM_B_NAME, font = font, fill = self._TEXT_COLOR)
+        x += font.getsize(self._TEAM_B_NAME)[0]
+        draw.text((x, y), str(score_B), font = font, fill = self._TEAM_B_COLOR)
 
         #shows generated image
         self.disp.image(image)
@@ -139,10 +133,10 @@ class DisplayHAL(HAL):
         """
         height, width = self.swap_height_width(True)
 
-        points = self.score_A if self.score_A > self.score_B else self.score_B
-        name = self.TEAM_A_NAME if self.score_A > self.score_B else self.TEAM_B_NAME
+        points = self._score_A if self._score_A > self._score_B else self._score_B
+        name = self._TEAM_A_NAME if self._score_A > self._score_B else self._TEAM_B_NAME
 
-        if name is self.TEAM_A_NAME:
+        if name is self._TEAM_A_NAME:
             image = Image.open("/home/pi/Gamecontrol/src/assets/team_a_win.jpg")
         else:
             image = Image.open("/home/pi/Gamecontrol/src/assets/team_b_win.jpg")

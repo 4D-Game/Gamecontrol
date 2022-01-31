@@ -26,24 +26,24 @@ class StepperHAL(HAL):
         Stepper hardware abstraction layer
 
         Attributes:
-                motor: map stepper
                 direction: stepper direction with default FORWARD
                 step_style: step type with default DOUBLE
                 interval: initial waiting time
                 step_count: motor rock control without encoder
-                frequency: motor shield per default 1600 Hz
                 motor_step_angle: step resolution with step_style DOUBLE
-                max_angle: limit rocking forward stepper1
-                min_angle: limit rocking backward stepper1
-                forward_- & backward_stopper: software rock protection with stopper instead of an encoder for stepper1
+                max_angle: max rocking angle
+                min_angle: min rocking angle
+                motor: map stepper at the shield 
+                forward_stopper: micro-limit-switch at GPIO Pin 24
+                backward_stopper: micro-limit-switch at GPIO Pin 25
     """
-    direction:Literal=STEPPER.FORWARD
-    step_style=STEPPER.DOUBLE
-    interval=0.03
-    step_count=0
-    motor_step_angle=0.225
-    max_angle=float(16)
-    min_angle=float(-16)
+    direction:Literal = STEPPER.FORWARD
+    step_style:int = STEPPER.DOUBLE
+    interval:float = 0.03
+    step_count:int = 0
+    motor_step_angle:float = 0.225
+    max_angle:float = float(16)
+    min_angle:float = float(-16)
 
     def __init__(self, stepper_name, port_number, stop_at_exit=True):
         """
@@ -52,7 +52,6 @@ class StepperHAL(HAL):
                 port_number: Motor HAT ports 1, 2
         """
         station=MotorKit(i2c=board.I2C())
-        station.frequency=1600               #per default 1600Hz
         self.name=stepper_name
         self.port_number=port_number
         if port_number==1:
@@ -62,13 +61,13 @@ class StepperHAL(HAL):
         if stop_at_exit:
             atexit.register(self.motor_stop)  #necessary as motor voltage is otherwise not released
 
-        if port_number ==1:   #position has to change ....
-            self.forward_stopper = Button(24, pull_up=True)     #GPIO 24 stopper
-            self.backward_stopper = Button(25, pull_up=True)    #GPIO 25 stopper
-            self.forward_stopper.when_pressed = self.change_direction
+        if port_number ==1:   
+            self.forward_stopper = Button(24, pull_up=True)             #GPIO 24 stopper
+            self.backward_stopper = Button(25, pull_up=True)            #GPIO 25 stopper
+            self.forward_stopper.when_pressed = self.change_direction   #Callback functions
             self.backward_stopper.when_pressed = self.change_direction
 
-    async def rock(self): #rocking stepper1 - new part for test
+    async def rock(self): #Rocking Stepper
         """
             Rock control stepper
         """
@@ -85,7 +84,7 @@ class StepperHAL(HAL):
             rock_angle=self.step_count*self.motor_step_angle
             self.change_direction(rock_angle)     #option: add conditions here
 
-    def change_direction(self, angle:float = 0):
+    def change_direction(self, angle:float = 0):  #Rocking Stepper
         """
             Direction change provided for rocking stepper
             Trigger: min. & max defined angle
@@ -113,14 +112,14 @@ class StepperHAL(HAL):
 
     def motor_stop(self):
         """
-            single motor hold for play algorithm and after end of game
+            Single motor hold
         """
 
         self.motor.release()
 
     def close(self):
         """
-           stop and release motor
+           Stop and release motor
         """
 
         self.motor_stop()
@@ -129,16 +128,17 @@ class StepperHAL(HAL):
 
 class EncoderStepperHAL(StepperHAL): #currently works with stopper instead of an encoder
     """
-        Stepper hardware abstraction layer for rocking stepper1 with stopper or encoder(stucture preparation only)
+        Stepper hardware abstraction layer for Rocking Stepper with stopper or encoder(stucture preparation only)
 
         Attributes:
                 motor: map stepper
-                encoder:placed for encoder of stepper1
+                encoder: placed for Rocking Stepper Encoder
                 direction: stepper direction with default FORWARD
                 step_style: step type with default DOUBLE
-                max_angle: limit rocking forward stepper1
-                min_angle: limit rocking backward stepper1
-                forward_- & backward_stopper: software rock protection with stopper instead of an encoder for stepper1
+                max_angle: forward limit for Rocking Stepper
+                min_angle: backward limit for Rocking Stepper
+                forward_stopper: software rock protection with stopper instead of an encoder for Rocking Stepper
+                backward_stopper: software rock protection with stopper instead of an encoder for Rocking Stepper
     """
 
     def __init__(self, stepper_name, port_number, stop_at_exit=True):
@@ -235,12 +235,12 @@ class Encoder():
             pin_A: Encoder channel A connected to GPIO pin for Tx
             pin_B: Encoder channel B connectet to GPIO pin for Rx
     """
-    motor_step_angle=0.225
-    old_state='00'
-    enc_imp=0
+    motor_step_angle:float = 0.225
+    old_state:str = '00'
+    enc_imp:int = 0
 
     def __init__(self):
-        self.direction=None
+        self.direction = None
         # self.pin_A=xx    #currently not defined
         # self.pin_B=xx    #currently not defined
 
@@ -254,8 +254,8 @@ class Encoder():
     async def set_imp_count_zero(self):
         """
             Not yet verified:
-            Function to set pulse counter to 0,
-            required at game_start
+            Function to set pulse counter to 0
+            Prepared for game start position
         """
         old_imp_val=self.enc_imp
         self.enc_imp=0
@@ -263,6 +263,8 @@ class Encoder():
 
     def enc_impulses(self):
         """
+            !!! Deprecated !!!
+            
             Event callbacks when edges are detected.
             Use Gray Code
         """

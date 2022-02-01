@@ -3,7 +3,7 @@ site_url: https://4d-game.github.io/Gamecontrol
 
 nav:
   - Home: https://4d-game.github.io
-  - Coding Style: https://4d-game.github.io/coding-style/cpp/
+  - Working on this Project: https://4d-game.github.io/game_concept/
   - Game Code:
       - Controller: https://4d-game.github.io/Controller/
       - Gamecontrol:
@@ -22,8 +22,8 @@ nav:
                   - Sound: code-references/hardware/sound_hal.md
                   - Stepper: code-references/hardware/stepper_hal.md
           - Known Issues: known-issues.md
+  - Game Hardware: https://4d-game.github.io/Hardware
   - SDK: https://4d-game.github.io/sdk/
-  - Hardware: https://4d-game.github.io/Hardware
 
 repo_url: https://github.com/4D-Game/Gamecontrol
 repo_name: 4D-Game/Gamecontrol

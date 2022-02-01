@@ -2,62 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/config-file/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/display-setup/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/known-issues/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/setup/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/code-references/display/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/code-references/main/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/code-references/controls/tower/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/code-references/hardware/display_hal/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/code-references/hardware/hal/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/code-references/hardware/sound_hal/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://4d-game.github.io/Gamecontrol/code-references/hardware/stepper_hal/</loc>
-         <lastmod>2022-01-31</lastmod>
+         <lastmod>2022-02-01</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

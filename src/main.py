@@ -19,7 +19,7 @@ class CrazyComet(Game):
         Gameclass for the gamecontrol
 
         Attributes:
-            max_score: Score at wich one team wins
+            max_score: Score at which one team wins
     """
 
     max_score: int = 10

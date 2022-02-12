@@ -5,7 +5,7 @@ Start the gamecontrol by executing *src/main.py* with python
 ## Installation
 ### Setup script
 
-To setup everything needed, to run the game there is a setup script, wich can be executed with the following command:
+To setup everything needed, to run the game there is a setup script, which can be executed with the following command:
 
 ```bash
 scripts/pi-setup
@@ -118,7 +118,7 @@ sudo pip3 install docker-compose
 
 #### RaspAP
 
-[RaspAP](https://raspap.com) is used to create a accesspoint to wich all controller can connect. It can be installed with:
+[RaspAP](https://raspap.com) is used to create a accesspoint to which all controller can connect. It can be installed with:
 
 ```bash
 curl -sL https://install.raspap.com | bash

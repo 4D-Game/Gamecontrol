@@ -1,6 +1,6 @@
 # Gamecontrol
 
-The *Gamecontrol* repository contains the code for the Raspberry Pi wich controls the whole game. In the following this Raspberry Pi is called **Gamecontrol**. In addition the repository contains the code used to access the displays and play sounds. The Raspberry Pi wich runs this code is further called **Displaycontrol**.
+The *Gamecontrol* repository contains the code for the Raspberry Pi which controls the whole game. In the following this Raspberry Pi is called **Gamecontrol**. In addition the repository contains the code used to access the displays and play sounds. The Raspberry Pi which runs this code is further called **Displaycontrol**.
 
 ## Structure
 
@@ -23,7 +23,7 @@ As defined in the `HAL` baseclass, every `HAL` class should have the following m
 
 ### Controls
 
-This folder contains all classes wich interact with the game. They usually instantiate one or more `HAL` classes to control the hardware depending on the game.
+This folder contains all classes which interact with the game. They usually instantiate one or more `HAL` classes to control the hardware depending on the game.
 
 ### Fonts
 

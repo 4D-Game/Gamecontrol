@@ -409,7 +409,7 @@
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"></path></svg>
 </a>
 <h1 id="gamecontrol">Gamecontrol</h1>
-<p>The <em>Gamecontrol</em> repository contains the code for the Raspberry Pi wich controls the whole game. In the following this Raspberry Pi is called <strong>Gamecontrol</strong>. In addition the repository contains the code used to access the displays and play sounds. The Raspberry Pi wich runs this code is further called <strong>Displaycontrol</strong>.</p>
+<p>The <em>Gamecontrol</em> repository contains the code for the Raspberry Pi which controls the whole game. In the following this Raspberry Pi is called <strong>Gamecontrol</strong>. In addition the repository contains the code used to access the displays and play sounds. The Raspberry Pi which runs this code is further called <strong>Displaycontrol</strong>.</p>
 <h2 id="structure">Structure</h2>
 <p>The entry point for the gamecontrol is the <code>CrazyComet</code> class in <em>src/main.py</em>. This is a subclass of <code>Game</code> from <code>game_sdk.gamecontrol</code> (See the <a href="https://4d-game.github.io/sdk">sdk documentation</a>). To start the game <code>CrazyComet.run()</code> is executed.</p>
 <p>The entry point for the display is the <code>Display</code> class in <em>src/display.py</em>. It is a subclass of <code>Game</code> from <code>game_sdk.passive</code> (See the <a href="https://4d-game.github.io/sdk">sdk documentation</a>). To start the game <code>Display.run()</code> is executed.</p>
@@ -426,7 +426,7 @@
 <p>Every class in the hardware abstraction layer should inherit from <code>HAL</code></p>
 </div>
 <h3 id="controls">Controls</h3>
-<p>This folder contains all classes wich interact with the game. They usually instantiate one or more <code>HAL</code> classes to control the hardware depending on the game.</p>
+<p>This folder contains all classes which interact with the game. They usually instantiate one or more <code>HAL</code> classes to control the hardware depending on the game.</p>
 <h3 id="fonts">Fonts</h3>
 <p>This folder contains the fonts used to display text on the displays.</p>
 <h3 id="assets">Assets</h3>

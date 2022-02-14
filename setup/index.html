@@ -566,7 +566,7 @@
 <p>Start the gamecontrol by executing <em>src/main.py</em> with python</p>
 <h2 id="installation">Installation</h2>
 <h3 id="setup-script">Setup script</h3>
-<p>To setup everything needed, to run the game there is a setup script, wich can be executed with the following command:</p>
+<p>To setup everything needed, to run the game there is a setup script, which can be executed with the following command:</p>
 <div class="highlight"><pre><span></span><code>scripts/pi-setup
 </code></pre></div>
 <p>After this you have to activate I2C by adding <code>dtparam=i2c_arm=on</code> to the <em>/boot/config.txt</em>. For the use with the Adafruit Motorshield the I2C speed needs to be adjusted to 1MHz. Add <code>dtparam=i2c_arm_baudrate=1000000</code> to the <em>/boot/config.txt</em>. Next the Raspberry Pi needs to be rebooted.</p>
@@ -639,7 +639,7 @@ sudo apt install python3-dev
 sudo pip3 install docker-compose
 </code></pre></div></p>
 <h4 id="raspap">RaspAP</h4>
-<p><a href="https://raspap.com">RaspAP</a> is used to create a accesspoint to wich all controller can connect. It can be installed with:</p>
+<p><a href="https://raspap.com">RaspAP</a> is used to create a accesspoint to which all controller can connect. It can be installed with:</p>
 <div class="highlight"><pre><span></span><code>curl -sL https://install.raspap.com <span class="p">|</span> bash
 </code></pre></div>
 <div class="admonition info">
